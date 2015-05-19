@@ -10,6 +10,7 @@ const extend   = require('extend');
 const fs       = require('fs');
 const program  = require('commander');
 const logging  = require('logging.js');
+const alerters = require('./lib/alerters');
 const config   = require('./lib/config');
 const util     = require('./lib/util');
 const version  = require('./package').version;
@@ -49,11 +50,21 @@ co(function *() {
     sentry: require('./lib/sentry'),
     webapp: require('./lib/webapp'),
   }[name];
+
   if (!service) {
     // invalid service name
     program.help();
   }
 
+  // load alerters
+  for (var i = 0; i < config.alerters.length; i++) {
+    var list = config.alerters[i];
+    var alerter = require(list[0]);
+    alerter.init(list[1]);
+    alerters[alerter.name] = alerter;
+  }
+
+  console.log(alerters)
   // yield service
   yield service.serve();
 }).catch(function(e) {

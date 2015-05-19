@@ -1,3 +1,4 @@
 .*.sw[opn]
 node_modules
 foo.json
+*.log

@@ -8,5 +8,5 @@
     auth: 'secret',
   },
   workspace: '.',
-  alerters: ['./alerters/hipchat'],
+  alerters: [['./alerters/console']],
 }
