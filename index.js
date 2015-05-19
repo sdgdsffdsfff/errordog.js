@@ -6,7 +6,7 @@
 const co       = require('co');
 const program  = require('commander');
 const logging  = require('logging.js');
-const util     = require('./lib/util');
+const util     = require('./util');
 const version  = require('./package').version;
 
 const log      = logging.get('errordog');
