@@ -17,7 +17,9 @@
       "bluebird": "2.9.25",
       "co": "4.5.4",
       "commander": "2.8.1",
-      "logging.js": ">=0.0.5"
+      "extend": "2.0.1",
+      "logging.js": ">=0.0.5",
+      "minimatch": "~2.0.8"
     },
     "bin": {
         "errordog": "./bin/errordog.js"
