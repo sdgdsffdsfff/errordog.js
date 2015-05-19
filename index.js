@@ -60,11 +60,11 @@ co(function *() {
   for (var i = 0; i < config.alerters.length; i++) {
     var list = config.alerters[i];
     var alerter = require(list[0]);
+    log.debug("load alerter '%s'", list[0]);
     alerter.init(list[1]);
     alerters[alerter.name] = alerter;
   }
 
-  console.log(alerters)
   // yield service
   yield service.serve();
 }).catch(function(e) {
