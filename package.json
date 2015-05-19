@@ -1,0 +1,26 @@
+{
+    "name": "errordog",
+    "version": "0.3.0",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/eleme/errordog.js"
+    },
+    "description": "Notify you on error logs!",
+    "author": "hit9 <hit9@ele.me>",
+    "keywords": ["error", "log", "notify"],
+    "engines": {
+        "iojs": ">=1.1",
+        "node": ">=0.12"
+    },
+    "main": "./index.js",
+    "dependencies": {
+      "bluebird": "2.9.25",
+      "co": "4.5.4",
+      "commander": "2.8.1",
+      "logging.js": ">=0.0.5"
+    },
+    "bin": {
+        "errordog": "./bin/errordog.js"
+    },
+    "license": "MIT"
+}
