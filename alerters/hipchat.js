@@ -1,4 +1,3 @@
-// requires module 'request'.
 'use strict';
 
 const request = require('request');
