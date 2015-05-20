@@ -16,7 +16,8 @@
     "dependencies": {
       "commander": "2.8.1",
       "extend": "2.0.1",
-      "logging.js": ">=0.0.6"
+      "logging.js": ">=0.0.6",
+      "request": "~2.55"
     },
     "bin": {
         "errordog": "./bin/errordog.js"
