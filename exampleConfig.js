@@ -3,9 +3,9 @@
 exports = module.exports = {
   logging: 'INFO',
   targets: [],
-  channels: [
+  alerters: [
     {
-      channel: require('./channels/console'),
+      alerter: require('./alerters/console'),
       settings: {},
     }
   ]

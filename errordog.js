@@ -8,8 +8,9 @@ const co       = require('co');
 const extend   = require('extend');
 const logging  = require('logging.js');
 const program  = require('commander');
-const channels = require('./lib/channels');
+const alerters = require('./lib/alerters');
 const config   = require('./lib/config');
+const Target   = require('./lib/target');
 const util     = require('./lib/util');
 const version  = require('./package').version;
 const log      = logging.get('errordog');
@@ -41,9 +42,15 @@ co(function *() {
   // logging level
   stderr.level = logging[config.logging];
 
-  // init channels
-  config.channels.forEach(function(item) {
-    item.channel.init(item.settings);
+  // init alerters
+  config.alerters.forEach(function(item) {
+    item.alerter.init(item.settings);
+  });
+
+  // watch targets
+  config.targets.forEach(function(options) {
+    var target = new Target(options);
+    target.tail(); target.watch();
   });
 }).catch(function(err) {
   return util.fatal(err);

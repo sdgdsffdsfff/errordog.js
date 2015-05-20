@@ -6,7 +6,7 @@ exports.init = function(settings) {};
 // connect this alerter to `target` with this target's `settings`
 // for this alerter.
 exports.connect = function(target, settings) {
-  target.emitter.on('alert', function(level, lines, extra) {
+  target.emitter.on('data', function(level) {
     console.log(lines.join('\n'));
   });
 };
