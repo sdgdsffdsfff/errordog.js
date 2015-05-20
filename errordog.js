@@ -8,7 +8,6 @@ const co       = require('co');
 const extend   = require('extend');
 const logging  = require('logging.js');
 const program  = require('commander');
-const alerters = require('./lib/alerters');
 const config   = require('./lib/config');
 const Target   = require('./lib/target');
 const util     = require('./lib/util');
