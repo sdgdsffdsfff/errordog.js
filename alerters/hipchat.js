@@ -6,18 +6,20 @@ const util    = require('util');
 const logging = require('logging.js');
 const log     = logging.get('errordog.hipchat');
 
-// hipchat api url
-var url;
+// hipchat api uri
+var uri;
+
+exports.name = 'hipchat';
 
 // initialize this alerter with its global settings
 exports.init = function(settings) {
-  url = ('http://api.hipchat.com/v1/rooms/message' +
+  uri = ('http://api.hipchat.com/v1/rooms/message' +
          '?format=json&auth_token=%s' + settings.token);
 };
 
 exports.connect = function(target, settings) {
   var roomId        = settings.room;
-  var from          = settings.from;
+  var from          = settings.from || target.name;
   var notify        = settings.notify || true;
   var messageFormat = settings.messageFormat || 'text';
   var atwho         = settings.atwho || [];
@@ -31,7 +33,7 @@ exports.connect = function(target, settings) {
       'message': code ? util.format('/code %s', msg): msg,
       'color'  : color || 'gray'
     };
-    return request.post({url: url, form: form}, function(err, res, body) {
+    return request.post({uri: uri, form: form}, function(err, res, body) {
       if (err)
         log.error('hipchat alerter error: %s', err.stack);
     });
