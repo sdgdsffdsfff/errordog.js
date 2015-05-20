@@ -13,6 +13,8 @@ const util     = require('./lib/util');
 const version  = require('./package').version;
 const log      = logging.get('errordog');
 
+log.addRule({name: 'stderr', stream: process.stderr});
+
 (function() {
   // argv parsing
   program
@@ -28,14 +30,12 @@ const log      = logging.get('errordog');
   var config = require(path);
 
   // logging level
-  log.addRule({
-    name: 'stderr', stream: process.stderr,
-    level: logging[config.logging]});
+  log.getRule('stderr').level = logging[config.logging];
 
   // init alerters
   config.alerters.forEach(function(item) {
     item.alerter.init(item.settings);
-    log.info('alerter %s initialized', item.alerter.name);
+    log.info('%s => initialized', item.alerter.name);
   });
 
   // watch targets

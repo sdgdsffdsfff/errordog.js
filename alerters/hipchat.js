@@ -14,7 +14,7 @@ exports.name = 'hipchat';
 // initialize this alerter with its global settings
 exports.init = function(settings) {
   uri = ('http://api.hipchat.com/v1/rooms/message' +
-         '?format=json&auth_token=%s' + settings.token);
+         '?format=json&auth_token=' + settings.token);
 };
 
 exports.connect = function(target, settings) {
@@ -35,15 +35,17 @@ exports.connect = function(target, settings) {
     };
     return request.post({uri: uri, form: form}, function(err, res, body) {
       if (err)
-        log.error('hipchat alerter error: %s', err.stack);
+        log.error('%s', err.stack);
     });
   };
 
   target.emitter.on('alert', function(level, lines) {
+    log.info('alert => level %d, lines: %d', level, lines.length);
+
     var color = colors[level];
 
     if (level == 2 && atwho.length > 0)
-      alert(util.format('%s %d errors in %d secs', atwho.join(' '),
+      alert(util.format('%s %d errors in last %d secs', atwho.join(' '),
                         lines.length, target.interval), color, false);
 
     if (lines.length > 0)
