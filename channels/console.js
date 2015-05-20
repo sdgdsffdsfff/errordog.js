@@ -1,7 +1,5 @@
 'use strict';
 
-exports.name = 'console';
-
 // initialize this alerter with its global settings
 exports.init = function(settings) {};
 
