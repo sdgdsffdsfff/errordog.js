@@ -8,7 +8,6 @@
 const extend   = require('extend');
 const logging  = require('logging.js');
 const program  = require('commander');
-const config   = require('./lib/config');
 const Target   = require('./lib/target');
 const util     = require('./lib/util');
 const version  = require('./package').version;
@@ -34,7 +33,7 @@ const stderr   = {
   if (!path)
     return program.help();
 
-  extend(config, require(path));
+  var config = require(path);
 
   // logging level
   stderr.level = logging[config.logging];
@@ -47,6 +46,8 @@ const stderr   = {
   // watch targets
   config.targets.forEach(function(options) {
     var target = new Target(options);
-    target.tail(); target.watch();
+    target.connect();
+    target.tail();
+    target.watch();
   });
 })();
