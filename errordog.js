@@ -8,6 +8,7 @@ const co       = require('co');
 const extend   = require('extend');
 const logging  = require('logging.js');
 const program  = require('commander');
+const channels = require('./lib/channels');
 const config   = require('./lib/config');
 const util     = require('./lib/util');
 const version  = require('./package').version;
@@ -39,6 +40,11 @@ co(function *() {
 
   // logging level
   stderr.level = logging[config.logging];
+
+  // init channels
+  config.channels.forEach(function(item) {
+    item.channel.init(item.settings);
+  });
 }).catch(function(err) {
   return util.fatal(err);
 });
