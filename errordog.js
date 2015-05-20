@@ -1,10 +1,10 @@
 // Error log watch dog. https://github.com/eleme/errordog.js
 // MIT. Copyright (c) 2014 - 20015 Eleme, Inc.
 // Only avaliable on Unix(with GNU tail).
+// Usage: $ errordog <config>
 
 'use strict';
 
-const co       = require('co');
 const extend   = require('extend');
 const logging  = require('logging.js');
 const program  = require('commander');
@@ -14,15 +14,13 @@ const util     = require('./lib/util');
 const version  = require('./package').version;
 const log      = logging.get('errordog');
 
-global.Promise = require('bluebird').Promise;
-
 const stderr   = {
   name: 'stderr',
   stream: process.stderr,
   level: logging.INFO,
 };
 
-co(function *() {
+(function() {
   log.addRule(stderr);
 
   // argv parsing
@@ -51,6 +49,4 @@ co(function *() {
     var target = new Target(options);
     target.tail(); target.watch();
   });
-}).catch(function(err) {
-  return util.fatal(err);
-});
+})();
