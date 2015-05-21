@@ -27,11 +27,16 @@ p.menu {
 }
 
 p.menu a {
-  padding: .5em 1em;
+  display: inline-block;
+  padding: 0 1em;
 }
 
 p.menu a.target-name {
   font-weight: bold;
+}
+
+p.menu a.all-rooms {
+  float: right;
 }
 
 p.loader {
