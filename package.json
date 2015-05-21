@@ -5,7 +5,7 @@
         "type": "git",
         "url": "git://github.com/eleme/errordog.js"
     },
-    "description": "Notify you on error logs!",
+    "description": "Error log watch dog.",
     "author": "hit9 <hit9@ele.me>",
     "keywords": ["error", "log", "notify"],
     "engines": {
