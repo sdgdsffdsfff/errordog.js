@@ -15,9 +15,11 @@ const emitter  = new events.EventEmitter();
 const log      = logging.get('errordog.webpage');
 const targets  = {};
 const cache    = {};
+const loader   = new nunjucks.FileSystemLoader(path.join(__dirname, 'view'));
+const env      = new nunjucks.Environment(loader);
 
-var root;   // root url prefix
-
+// root url prefix
+var root;
 
 // e.g.
 //
@@ -84,9 +86,7 @@ var init = function(logLevel, settings) {
   } else {
     // reset global `root`
     root = settings.root || '';
-    // init env
-    var loader = new nunjucks.FileSystemLoader(path.join(__dirname, 'view'));
-    var env = new nunjucks.Environment(loader);
+    // init env global vars
     env.addGlobal('Object', Object);
     env.addGlobal('url', url);
     env.addGlobal('targets', targets);
