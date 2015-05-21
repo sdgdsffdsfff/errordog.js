@@ -11,15 +11,16 @@
     }
 
     var socket = io(addr);
-    var maxCount = 50;
+    var maxCount = 100;
     var curCount = 0;
+    var placeholder = $('ul.main li.placeholder');
 
     socket.on('data', function(data) {
       $('p.loader').hide();
 
       var color;
-      var placeholder = $('ul.main li.placeholder');
       var child = placeholder.clone();
+
       switch(data.level) {
         case 0:
           color = 'gray';
