@@ -2,8 +2,8 @@
 
 exports.name = 'console';
 
-// initialize this alerter with its global settings
-exports.init = function(settings) {};
+// initialize this alerter with dog's config and its global settings
+exports.init = function(config, settings) {};
 
 // connect this alerter to `target` with this target's `settings`
 // for this alerter.

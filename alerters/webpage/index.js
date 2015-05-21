@@ -9,11 +9,11 @@ var child;  // web server master process
 
 exports.name = 'webpage';
 
-// initialize this alerter with its global settings
-exports.init = function(settings) {
+// initialize this alerter with dog's config and its global settings
+exports.init = function(config, settings) {
   var numWorkers = settings.numWorkers || 6;
   child = child_process.fork(path.join(__dirname, 'server'));
-  child.send({type: 'init', settings: settings});
+  child.send({type: 'init', logLevel: config.logging, settings: settings});
   log.info('server master forked, pid %d', child.pid);
 };
 

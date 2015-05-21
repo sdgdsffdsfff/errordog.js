@@ -34,7 +34,7 @@ log.addRule({name: 'stderr', stream: process.stderr});
 
   // init alerters
   config.alerters.forEach(function(item) {
-    item.alerter.init(item.settings);
+    item.alerter.init(config, item.settings);
     log.info('%s => initialized', item.alerter.name);
   });
 

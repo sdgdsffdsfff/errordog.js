@@ -18,7 +18,6 @@ const cache    = {};
 
 var root;   // root url prefix
 
-log.addRule({name: 'stderr', stream: process.stderr, level: logging.INFO});
 
 // e.g.
 //
@@ -69,12 +68,17 @@ var api = function *(name) {
            this.url, res.level, res.count, res.updateAt);
 };
 
-var init = function(settings) {
+var init = function(logLevel, settings) {
+  // we are in child process(worker/matser), not in dog's process
+  // logging's propagate is not working here, for two copies memory
+  // are separate.
+  log.addRule({name: 'stderr', stream: process.stderr, level: logging[logLevel]});
+
   if (cluster.isMaster) {
     var numWorkers = settings.workers || 4;
     for (var i = 0; i < numWorkers; i++) {
       var worker = cluster.fork();
-      worker.send({type: 'init', settings: settings});
+      worker.send({type: 'init', logLevel: logLevel, settings: settings});
       log.info('server worker forked, pid: %d', worker.process.pid);
     }
   } else {
@@ -134,7 +138,7 @@ var connect = function(target, settings) {
   process.on('message', function(msg) {
     switch (msg.type) {
       case 'init':
-        init(msg.settings);
+        init(msg.logLevel, msg.settings);
         break;
       case 'connect':
         connect(msg.target, msg.settings);

@@ -10,12 +10,14 @@ var uri;
 
 exports.name = 'hipchat';
 
-// initialize this alerter with its global settings
-exports.init = function(settings) {
+// initialize this alerter with dog's config and its global settings
+exports.init = function(config, settings) {
   uri = ('http://api.hipchat.com/v1/rooms/message' +
          '?format=json&auth_token=' + settings.token);
 };
 
+// connect this alerter to `target` with this target's `settings`
+// for this alerter.
 exports.connect = function(target, settings) {
   var roomId        = settings.room;
   var from          = settings.from || target.name;
