@@ -16,6 +16,10 @@ body {
   padding: 0;
 }
 
+p.loader {
+  text-align: center;
+}
+
 ul.main {
   display: block;
 }
@@ -28,11 +32,10 @@ li.item {
 }
 
 li.item span.info {
-  font-weight: 600;
   width: 15%;
   display: table-cell;
-  color: #555;
 }
+
 
 li.item pre {
   display: table-cell;
@@ -50,8 +53,17 @@ li.placeholder {
   display: none;
 }
 
+li.item span.info {
+  color: #666;
+}
+
+li.item.red span.info {
+  color: #c03;
+  font-weight: 600;
+}
+
 li.item.red {
-  background-color: #ef9999;
+  background-color: #f9aaaa;
 }
 
 li.item.yellow {

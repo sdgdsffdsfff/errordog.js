@@ -15,6 +15,8 @@
     var curCount = 0;
 
     socket.on('data', function(data) {
+      $('p.loader').hide();
+
       var color;
       var placeholder = $('ul.main li.placeholder');
       var child = placeholder.clone();
