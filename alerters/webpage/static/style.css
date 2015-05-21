@@ -28,14 +28,14 @@ p.menu {
 
 p.menu a {
   display: inline-block;
-  padding: 0 1em;
+  padding: 0 .8em;
 }
 
 p.menu a.target-name {
   font-weight: bold;
 }
 
-p.menu a.all-rooms {
+p.menu a.all-rooms, p.menu a.source-link {
   float: right;
 }
 
