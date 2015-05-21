@@ -1,0 +1,13 @@
+{% extends 'layout.html' %}
+
+{% block main %}
+{% if targets.length %}
+  <ul>
+  {% for target in targets %}
+  <li><a href="{{ url('/' + target.name) }}"> {{ target.name }} </a></li>
+  {% endfor %}
+  </ul>
+{% else %}
+Nothing.
+{% endif %}
+{% endblock %}

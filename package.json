@@ -21,7 +21,8 @@
       "koa-route": "2.4.1",
       "koa-static": "1.4.9",
       "nunjucks": "1.3.4",
-      "request": "~2.55"
+      "request": "~2.55",
+      "socket.io": "1.3.5"
     },
     "bin": {
         "errordog": "./bin/errordog.js"

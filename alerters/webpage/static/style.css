@@ -1,0 +1,64 @@
+*, html {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font: 15px/1.3 Consolas, Helvetica, arial, sans-serif;
+  margin: 0 auto;
+  overflow: scroll;
+  position: relative;
+  padding: 0;
+}
+
+ul.main {
+  display: block;
+}
+
+li.item {
+  width: 100%;
+  padding: 0 1em;
+  border-bottom: 1px solid #999;
+  display: table;
+}
+
+li.item span.info {
+  font-weight: 600;
+  width: 15%;
+  display: table-cell;
+  color: #555;
+}
+
+li.item pre {
+  display: table-cell;
+  white-space: normal;
+}
+
+li.item pre code {
+  margin: 0;
+  white-space: pre-wrap;
+  max-height: 10em;
+  overflow-y: scroll;
+}
+
+li.placeholder {
+  display: none;
+}
+
+li.item.red {
+  background-color: #ef9999;
+}
+
+li.item.yellow {
+  background-color: #fff9ea;
+}
+}
+
+li.item.gray {
+  background-color: #ddd;
+}
