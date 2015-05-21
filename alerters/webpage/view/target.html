@@ -14,6 +14,12 @@
 
 {% block main %}
 <p class="loader"> Waiting logging data.. </p>
+<p class="menu">
+  <a class="target-name"> {{ name }} </a>
+  <a class="update-toggle" href="javascript:void(0)">Disable Update</a>
+  <a class="follow-toggle" href="javascript:void(0)">Disable Follow</a>
+  <a class="fullscreen-toggle" href="javascript:void(0)">Enter Fullscreen</a>
+</p>
 <ul class="main">
   <li class="item placeholder">
     <span class="info">
@@ -21,7 +27,7 @@
       <p class="message"></p>
     </span>
     <pre>
-      <code class="cpp"></code>
+      <code class="bash"></code>
     </pre>
   </li>
 </ul>

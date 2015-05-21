@@ -16,36 +16,57 @@ body {
   padding: 0;
 }
 
+p.menu {
+  position: fixed;
+  left: 0;
+  z-index: 999;
+  display: block;
+  width: 100%;
+  height: 1.5em;
+  background-color: #ddd;
+}
+
+p.menu a {
+  padding: .5em 1em;
+}
+
+p.menu a.target-name {
+  font-weight: bold;
+}
+
 p.loader {
   text-align: center;
 }
 
 ul.main {
+  padding-top: 1.5em;
   display: block;
 }
 
 li.item {
   width: 100%;
-  padding: 0 1em;
   border-bottom: 1px solid #999;
   display: table;
 }
 
 li.item span.info {
+  padding: .5em 1em;
   width: 15%;
   display: table-cell;
 }
 
 
 li.item pre {
+  padding: 0.5em 1em;
   display: table-cell;
   white-space: normal;
 }
 
 li.item pre code {
+  border-radius: 5px;
   margin: 0;
   white-space: pre-wrap;
-  max-height: 10em;
+  max-height: 8.5em;
   overflow-y: scroll;
   color: #eee;
 }
@@ -55,7 +76,7 @@ li.placeholder {
 }
 
 li.item span.info {
-  color: #666;
+  color: #333;
 }
 
 li.item.red span.info {
