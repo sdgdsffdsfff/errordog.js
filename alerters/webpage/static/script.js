@@ -15,7 +15,7 @@
     var curCount = 0;
     var placeholder = $('ul.main li.placeholder');
 
-    socket.on('data', function(data) {
+    socket.on('alert', function(data) {
       $('p.loader').hide();
 
       var color;
