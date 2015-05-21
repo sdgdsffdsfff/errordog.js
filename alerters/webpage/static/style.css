@@ -47,6 +47,7 @@ li.item pre code {
   white-space: pre-wrap;
   max-height: 10em;
   overflow-y: scroll;
+  color: #eee;
 }
 
 li.placeholder {
