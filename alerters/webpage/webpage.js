@@ -48,6 +48,10 @@ var render = function (tpl, ctx) {
   }
 };
 
+var index = function *(name) {
+  this.body = 'hello world';
+};
+
 exports.name = 'webpage';
 
 // initialize this alerter with its global settings
@@ -56,6 +60,7 @@ exports.init = function(settings) {
   env.addGlobal('url', url);
   app = koa();
   app.use(mount(url('/public', pbldir)));
+  app.use(mount(url('/:name', index)));
   server = http.createServer(app.callback());
   io = socketio(server);
   server.listen(settings.port || 9527);
