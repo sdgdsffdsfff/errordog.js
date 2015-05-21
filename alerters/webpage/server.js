@@ -2,7 +2,6 @@
 
 const cluster  = require('cluster');
 const events   = require('events');
-const http     = require('http');
 const logging  = require('logging.js');
 const koa      = require('koa');
 const mount    = require('koa-mount');
@@ -10,26 +9,16 @@ const nunjucks = require('nunjucks');
 const path     = require('path');
 const route    = require('koa-route');
 const static_  = require('koa-static');
-const sticky   = require('sticky-session');
-const socketio = require('socket.io');
 const util     = require('util');
 
 const emitter  = new events.EventEmitter();
 const log      = logging.get('errordog.webpage');
-const pstatic  = path.join(__dirname, 'static');
-const pview    = path.join(__dirname, 'view');
-const loader   = new nunjucks.FileSystemLoader(pview);
-const env      = new nunjucks.Environment(loader);
-const targets  = [];
+const targets  = {};
+const cache    = {};
+
+var root;   // root url prefix
 
 log.addRule({name: 'stderr', stream: process.stderr, level: logging.INFO});
-
-var host;   // domain or ip
-var ports;  // server ports
-var root;   // root url prefix
-var app;    // koa app instance
-var server; // http server instance
-var io;     // socket io instance
 
 // e.g.
 //
@@ -42,7 +31,7 @@ var url = function(route, params) {
       var pairs = [];
       for (var key in params) {
         var list = [key, params[key]];
-        var str = list.mao(encodeURIComponent).join('=');
+        var str = list.map(encodeURIComponent).join('=');
         pairs.push(str);
       }
       s += '?' + pairs.join('&');
@@ -51,7 +40,6 @@ var url = function(route, params) {
 };
 
 // make nunjucks works with koa
-//
 var render = function (tpl, ctx) {
   return function(cb) {
     env.render(tpl, ctx, cb);
@@ -63,38 +51,50 @@ var index = function *(name) {
   if (typeof name !== 'string') {
     this.body = yield render('index.html');
   } else {
-    this.body = yield render('target.html', {name: name});
+    this.body = yield render('target.html', {
+      name: name,
+      target: targets[name],
+      api: url('/_api/' + name)
+    });
   }
+  log.info('get %s', this.url);
+};
+
+// @route '/_api/:name'
+var api = function *(name) {
+  var res = cache[name] || {updateAt: 0, level: null, count: null};
+  this.body = yield res;
+
+  log.info('get %s => level: %s, count: %s, updateAt: %d',
+           this.url, res.level, res.count, res.updateAt);
 };
 
 var init = function(settings) {
-  ports = settings.ports || [9527];
-
   if (cluster.isMaster) {
-    for (var i = 0; i < ports.length; i++) {
+    var numWorkers = settings.workers || 4;
+    for (var i = 0; i < numWorkers; i++) {
       var worker = cluster.fork();
       worker.send({type: 'init', settings: settings});
       log.info('server worker forked, pid: %d', worker.process.pid);
     }
   } else {
-    var port = ports[cluster.worker.id - 1];
+    // reset global `root`
     root = settings.root || '';
-    host = settings.host || 'localhost';
+    // init env
+    var loader = new nunjucks.FileSystemLoader(path.join(__dirname, 'view'));
+    var env = new nunjucks.Environment(loader);
+    env.addGlobal('Object', Object);
     env.addGlobal('url', url);
-    env.addGlobal('path', path);
-    env.addGlobal('host', host);
-    env.addGlobal('port', port);
-    env.addGlobal('root', root);
     env.addGlobal('targets', targets);
-    app = koa();
-    app.use(mount(url('/static'), static_(pstatic)));
+    // start app
+    var port = settings.port || 9527;
+    var app = koa();
+    app.use(mount(url('/static'), static_(path.join(__dirname, 'static'))));
+    app.use(route.get(url('/_api/:name'), api));
     app.use(route.get(url('/'), index));
     app.use(route.get(url('/:name'), index));
-    server = http.createServer(app.callback());
-    io = socketio(server);
-    server.listen(port, function() {
-      log.info('server worker %d is listening on %s:%d..',
-               cluster.worker.process.pid, host, port);
+    app.listen(port, function() {
+      log.info('server worker started on port %d..', port);
     });
   }
 };
@@ -113,16 +113,17 @@ var connect = function(target, settings) {
       }
     });
   } else {
-    targets.push(target);
-    var socket = io.of(url('/io/' + target.name));
+    // record this target;
+    targets[target.name] = target;
+
     emitter.on('alert', function(level, lines) {
-      socket.emit('alert', {
+      cache[target.name] = {
         count: lines.length,
         level: level,
-        lines: lines.slice(0, 100),  // max 100 lines
-        datetime: new Date().toString(),
+        lines: lines.slice(0, 100),  // limit 100 lines
+        updateAt: +new Date(),
         interval: target.interval,
-      });
+      };
     });
   }
 };

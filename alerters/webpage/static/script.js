@@ -1,21 +1,24 @@
 (function() {
-  this.init = function(host, port, root, name) {
-    var addr;
-
-    if (root.length > 0) {
-      addr = sprintf('http://{0}:{1}/{2}/io/{3}',
-                      host, port, root, name);
-    } else {
-      addr = sprintf('http://{0}:{1}/io/{2}',
-                     host, port, name);
-    }
-
-    var socket = io(addr);
+  this.init = function(api, name, interval) {
     var maxCount = 100;
     var curCount = 0;
     var placeholder = $('ul.main li.placeholder');
+    var updateAt = 1;
 
-    socket.on('alert', function(data) {
+    pull(); setInterval(pull, interval * 1e3 / 2);
+
+    // pull news from api
+    function pull() {
+      $.get(api, function(data) {
+        if (updateAt < data.updateAt) {
+          addItem(data);
+          updateAt = data.updateAt;
+        }
+      });
+    }
+
+    // add new item to dom
+    function addItem(data) {
       $('p.loader').hide();
 
       var color;
@@ -33,7 +36,8 @@
           break;
       }
       child.attr('class', 'item ' + color);
-      child.find('span p.datetime').text(data.datetime.slice(0, 24));
+      child.find('span p.datetime').text(
+        (new Date(data.updateAt)).toString().slice(0, 24));
       child.find('span p.message').text(sprintf('({0}) {1} errors in {2} secs',
                                                 name, data.count, data.interval));
       child.find('pre code').text(data.lines.join('\n'));
@@ -47,7 +51,7 @@
       }
 
       $('body').scrollTop($('body')[0].scrollHeight);
-    });
+    }
   };
 })(this);
 
