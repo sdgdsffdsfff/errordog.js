@@ -1,3 +1,13 @@
+// Global Settings
+//   token          hipchat token (required)
+//
+// Target Settings
+//   room           room id (required)
+//   from           message was sent from, default: target.name
+//   notify         should notify users, default: true
+//   messageFormat  messageFormat, default: 'text'
+//   atwho          hipchat ids to `@`, default: []
+
 'use strict';
 
 const request = require('request');

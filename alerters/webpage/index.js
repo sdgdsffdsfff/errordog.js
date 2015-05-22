@@ -1,3 +1,9 @@
+// Global Settings
+//
+//    port              web port to bind, default: 9527
+//    root              web root url prefix, default: ''
+//    workers           workers number, default: 4
+
 'use strict';
 
 const child_process = require('child_process');
