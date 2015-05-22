@@ -52,6 +52,7 @@ li.item {
   width: 100%;
   border-bottom: 1px solid #999;
   display: table;
+  table-layout: fixed;
 }
 
 li.item span.info {
