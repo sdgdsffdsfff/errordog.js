@@ -66,8 +66,14 @@
     function addItem(data) {
       $('p.loader').hide();
 
+      while (curCount > maxCount) {
+        $('ul.main li.item').first().remove();
+        curCount -= 1;
+      }
+
       var color;
       var child = placeholder.clone();
+      child.appendTo($('ul.main'));
 
       switch(data.level) {
         case 0:
@@ -83,23 +89,17 @@
       child.attr('class', 'item ' + color);
       child.find('span p.datetime').text(
         (new Date(data.updateAt)).toString().slice(0, 24));
-      child.find('span p.message').text(sprintf('=> {0} errors in {1} secs',
-                                                data.count, data.interval));
+      child.find('span p.message').text(
+        sprintf('=> {0} errors in {1} secs',
+                data.count, data.interval));
       child.find('pre code').text(data.lines.join('\n'));
       hljs.highlightBlock(child.find('pre code')[0]);
-      $('ul.main').append(child);
       curCount += 1;
-
-      while (curCount > maxCount) {
-        $('ul.main li.item').first().remove();
-        curCount -= 1;
-      }
 
       if (followToggle)
         $('body').scrollTop($('body')[0].scrollHeight);
     }
   };
-
 })(this);
 
 // help to sprintf a string

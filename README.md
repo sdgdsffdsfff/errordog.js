@@ -8,4 +8,4 @@ Error Dog
 License
 -------
 
-MIT. Copyright (c) 2014 - 20015 Eleme, Inc.
+MIT. Copyright (c) 2014 - 2015 Eleme, Inc.

@@ -68,12 +68,12 @@ li.item pre {
 }
 
 li.item pre code {
+  font-family: Menlo, Monaco, 'Andale Mono', 'Lucida Console', 'Courier New', monospace;
   border-radius: 5px;
   margin: 0;
   white-space: pre-wrap;
   max-height: 8.5em;
   overflow-y: scroll;
-  color: #eee;
 }
 
 li.placeholder {
