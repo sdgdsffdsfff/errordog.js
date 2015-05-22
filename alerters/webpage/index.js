@@ -21,6 +21,12 @@ exports.init = function(config, settings) {
   child = child_process.fork(path.join(__dirname, 'server'));
   child.send({type: 'init', logLevel: config.logging, settings: settings});
   log.info('server master forked, pid %d', child.pid);
+
+  // kill child on process exit
+  process.on('exit', function() {
+    log.info('term worker child process..');
+    child.kill('SIGTERM');
+  });
 };
 
 // connect this alerter to `target` with this target's `settings`
