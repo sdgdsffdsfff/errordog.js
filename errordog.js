@@ -5,7 +5,6 @@
 
 'use strict';
 
-const extend   = require('extend');
 const logging  = require('logging.js');
 const program  = require('commander');
 const Target   = require('./lib/target');
