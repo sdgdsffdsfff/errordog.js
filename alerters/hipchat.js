@@ -51,7 +51,8 @@ exports.connect = function(target, settings) {
   };
 
   target.emitter.on('alert', function(level, lines) {
-    log.info('alert => level %d, lines: %d', level, lines.length);
+    log.info('%s: alert => level %d, lines: %d',
+             target.name, level, lines.length);
 
     var color = colors[level];
 

@@ -109,25 +109,27 @@ var connect = function(target, settings) {
       var worker = cluster.workers[id];
       worker.send({type: 'connect', target: target, settings: settings});
     }
-    emitter.on('alert', function(level, lines) {
+    emitter.on('alert', function(name, level, lines) {
       // broadcast to workers
       for (var id in cluster.workers) {
         var worker = cluster.workers[id];
-        worker.send({type: 'alert', level: level, lines: lines});
+        worker.send({type: 'alert', name: name, level: level, lines: lines});
       }
     });
   } else {
     // record this target;
     targets[target.name] = target;
 
-    emitter.on('alert', function(level, lines) {
-      cache[target.name] = {
-        count: lines.length,
-        level: level,
-        lines: lines.slice(0, 100),  // limit 100 lines
-        updateAt: +new Date(),
-        interval: target.interval,
-      };
+    emitter.on('alert', function(name, level, lines) {
+      if (name === target.name) {
+        cache[target.name] = {
+          count: lines.length,
+          level: level,
+          lines: lines.slice(0, 60),  // limit 60 lines
+          updateAt: +new Date(),
+          interval: target.interval,
+        };
+      }
     });
   }
 };
@@ -144,7 +146,7 @@ var connect = function(target, settings) {
         connect(msg.target, msg.settings);
         break;
       case 'alert':
-        emitter.emit('alert', msg.level, msg.lines);
+        emitter.emit('alert', msg.name, msg.level, msg.lines);
         break;
     }
   });

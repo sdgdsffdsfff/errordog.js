@@ -34,6 +34,6 @@ exports.init = function(config, settings) {
 exports.connect = function(target, settings) {
   child.send({type: 'connect', target: target, settings: settings});
   target.emitter.on('alert', function(level, lines) {
-    child.send({type: 'alert', level: level, lines: lines});
+    child.send({type: 'alert', name: target.name, level: level, lines: lines});
   });
 };

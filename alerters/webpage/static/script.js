@@ -92,7 +92,9 @@
       child.find('span p.message').text(
         sprintf('=> {0} errors in {1} secs',
                 data.count, data.interval));
-      child.find('pre code').text(data.lines.join('\n'));
+      child.find('pre code').text(data.lines.map(function(l) {
+        return l.trim();
+      }).join('\n'));
       hljs.highlightBlock(child.find('pre code')[0]);
       curCount += 1;
 
