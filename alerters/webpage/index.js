@@ -3,6 +3,13 @@
 //    port              web port to bind, default: 9527
 //    root              web root url prefix, default: ''
 //    workers           workers number, default: 4
+//    rooms             rooms list, default: []
+//    interval          client pull interval, default: 5 sec
+//
+// Target Settings
+//
+//    room              room name to send to
+//
 
 'use strict';
 

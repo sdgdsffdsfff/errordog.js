@@ -1,13 +1,13 @@
 {% extends 'layout.html' %}
 
 {% block main %}
-{% if Object.keys(targets).length > 0 %}
+{% if Object.keys(rooms).length > 0 %}
   <ul>
-  {% for name in Object.keys(targets) %}
+  {% for name in Object.keys(rooms) %}
     <li><a href="{{ url('/' + name) }}"> {{ name }} </a></li>
   {% endfor %}
   </ul>
 {% else %}
-Nothing.
+No room.
 {% endif %}
 {% endblock %}

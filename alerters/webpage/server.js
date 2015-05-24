@@ -13,13 +13,13 @@ const util     = require('util');
 
 const emitter  = new events.EventEmitter();
 const log      = logging.get('errordog.webpage');
-const targets  = {};
 const cache    = {};
 const loader   = new nunjucks.FileSystemLoader(path.join(__dirname, 'view'));
 const env      = new nunjucks.Environment(loader);
 
-// root url prefix
-var root;
+var root;      // root url prefix
+var rooms;     // all room names
+var interval;  // client pull interval
 
 // e.g.
 //
@@ -54,7 +54,6 @@ var index = function *(name) {
   } else {
     this.body = yield render('target.html', {
       name: name,
-      target: targets[name],
       api: url('/_api/' + name)
     });
   }
@@ -84,12 +83,15 @@ var init = function(logLevel, settings) {
       log.info('server worker forked, pid: %d', worker.process.pid);
     }
   } else {
-    // reset global `root`
+    // reset global vars
     root = settings.root || '';
+    rooms = settings.rooms || [];
+    interval = settings.interval || 5;
     // init env global vars
     env.addGlobal('Object', Object);
     env.addGlobal('url', url);
-    env.addGlobal('targets', targets);
+    env.addGlobal('rooms', rooms);
+    env.addGlobal('interval', interval);
     // start app
     var port = settings.port || 9527;
     var app = koa();
@@ -117,12 +119,10 @@ var connect = function(target, settings) {
       }
     });
   } else {
-    // record this target;
-    targets[target.name] = target;
-
+    var room = settings.room;
     emitter.on('alert', function(name, level, lines) {
       if (name === target.name) {
-        cache[target.name] = {
+        cache[room] = {
           count: lines.length,
           level: level,
           lines: lines.slice(0, 60),  // limit 60 lines
