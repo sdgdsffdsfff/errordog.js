@@ -63,11 +63,9 @@ var index = function *(room) {
 
 // @route '/_api/:room'
 var api = function *(room) {
-  var res = cache[room] ||
-    [{updateAt: 0, level: null, count: null}];
+  var res = cache[room] || [];
   this.body = yield res;
-
-  log.info('get %s => %d',
+  log.info('get %s => count: %d',
            this.url, res.length);
 };
 

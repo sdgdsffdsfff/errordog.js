@@ -56,9 +56,9 @@
         return;
       $.get(api, function(list) {
         list.forEach(function(data) {
-          if (updateAt < data.updateAt) {
+          if (updateAt < +(data.updateAt || 1)) {
             addItem(data);
-            updateAt = data.updateAt;
+            updateAt = +data.updateAt;
           }
         });
       });
