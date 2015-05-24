@@ -1,6 +1,6 @@
 {
     "name": "errordog",
-    "version": "0.3.5",
+    "version": "0.3.6",
     "repository": {
         "type": "git",
         "url": "git://github.com/eleme/errordog.js"
