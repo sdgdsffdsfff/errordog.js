@@ -101,7 +101,7 @@
       curCount += 1;
 
       if (followToggle)
-        $('body').scrollTop($('body')[0].scrollHeight);
+        window.scrollTo(0, document.body.scrollHeight);
     }
   };
 })(this);
