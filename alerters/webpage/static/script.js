@@ -1,5 +1,5 @@
 (function() {
-  this.init = function(api, name, interval) {
+  this.init = function(api, interval) {
     var updateToggle = true; // on
     var followToggle = true; // on
     var fullscreenToggle = false; // off
@@ -91,8 +91,8 @@
       child.find('span p.datetime').text(
         (new Date(data.updateAt)).toString().slice(0, 24));
       child.find('span p.message').text(
-        sprintf('=> {0} errors in {1} secs',
-                data.count, data.interval));
+        sprintf('{0} => {1} errors in {2} secs',
+                data.name, data.count, data.interval));
       child.find('pre code').text(data.lines.map(function(l) {
         return l.trim();
       }).join('\n'));
