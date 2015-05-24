@@ -5,7 +5,7 @@
 //    workers           workers number, default: 4
 //    rooms             rooms list, default: []
 //    interval          client pull interval, default: 5 sec
-//    cacheCount        cache data count in memory, default: 50
+//    cacheCount        cache data count in memory, default: 30
 //
 // Target Settings
 //
