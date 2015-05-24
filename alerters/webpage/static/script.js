@@ -48,18 +48,19 @@
     var placeholder = $('ul.main li.placeholder');
     var updateAt = 1;
 
-    pull(); setInterval(pull,
-                        Math.min(10, interval / 2) * 1e3);
+    pull(); setInterval(pull, interval * 1e3);
 
     // pull news from api
     function pull() {
       if (!updateToggle)
         return;
-      $.get(api, function(data) {
-        if (updateAt < data.updateAt) {
-          addItem(data);
-          updateAt = data.updateAt;
-        }
+      $.get(api, function(list) {
+        list.forEach(function(data) {
+          if (updateAt < data.updateAt) {
+            addItem(data);
+            updateAt = data.updateAt;
+          }
+        });
       });
     }
 
