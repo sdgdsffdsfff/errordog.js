@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block title %}
-{{ name }} - errordog
+{{ room }} - errordog
 {% endblock %}
 
 {% block extra_header %}
@@ -15,7 +15,7 @@
 {% block main %}
 <p class="loader"> Waiting logging data.. </p>
 <p class="menu">
-  <a class="target-name"> {{ name }} </a>
+  <a class="target-name"> {{ room }} </a>
   <a class="update-toggle" href="javascript:void(0)">Disable Update</a>
   <a class="follow-toggle" href="javascript:void(0)">Disable Follow</a>
   <a class="fullscreen-toggle" href="javascript:void(0)">Enter Fullscreen</a>
@@ -39,7 +39,7 @@
 <script type="text/javascript" charset="utf-8">
   hljs.initHighlightingOnLoad();
   window.onload = function() {
-    init('{{ api }}', '{{ name }}', {{ target.interval }});
+    init('{{ api }}', {{ interval }});
   };
 </script>
 {% endblock %}

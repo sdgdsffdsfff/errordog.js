@@ -13,13 +13,13 @@ const util     = require('util');
 
 const emitter  = new events.EventEmitter();
 const log      = logging.get('errordog.webpage');
-const targets  = {};
-const cache    = {};
+const cache    = {};    // {roomName: latestLines}
 const loader   = new nunjucks.FileSystemLoader(path.join(__dirname, 'view'));
 const env      = new nunjucks.Environment(loader);
 
-// root url prefix
-var root;
+var root;      // root url prefix
+var rooms;     // all room names
+var interval;  // client pull interval
 
 // e.g.
 //
@@ -47,23 +47,22 @@ var render = function (tpl, ctx) {
   }
 };
 
-// @route '/:name' & '/'
-var index = function *(name) {
-  if (typeof name !== 'string') {
+// @route '/:room' & '/'
+var index = function *(room) {
+  if (typeof room !== 'string') {
     this.body = yield render('index.html');
   } else {
-    this.body = yield render('target.html', {
-      name: name,
-      target: targets[name],
-      api: url('/_api/' + name)
+    this.body = yield render('room.html', {
+      room: room,
+      api: url('/_api/' + room)
     });
   }
   log.info('get %s', this.url);
 };
 
-// @route '/_api/:name'
-var api = function *(name) {
-  var res = cache[name] || {updateAt: 0, level: null, count: null};
+// @route '/_api/:room'
+var api = function *(room) {
+  var res = cache[room] || {updateAt: 0, level: null, count: null};
   this.body = yield res;
 
   log.info('get %s => level: %s, count: %s, updateAt: %d',
@@ -84,19 +83,21 @@ var init = function(logLevel, settings) {
       log.info('server worker forked, pid: %d', worker.process.pid);
     }
   } else {
-    // reset global `root`
+    // reset global vars
     root = settings.root || '';
+    rooms = settings.rooms || [];
+    interval = settings.interval || 5;
     // init env global vars
-    env.addGlobal('Object', Object);
     env.addGlobal('url', url);
-    env.addGlobal('targets', targets);
+    env.addGlobal('rooms', rooms);
+    env.addGlobal('interval', interval);
     // start app
     var port = settings.port || 9527;
     var app = koa();
     app.use(mount(url('/static'), static_(path.join(__dirname, 'static'))));
-    app.use(route.get(url('/_api/:name'), api));
+    app.use(route.get(url('/_api/:room'), api));
     app.use(route.get(url('/'), index));
-    app.use(route.get(url('/:name'), index));
+    app.use(route.get(url('/:room'), index));
     app.listen(port, function() {
       log.info('server worker started on port %d..', port);
     });
@@ -117,12 +118,11 @@ var connect = function(target, settings) {
       }
     });
   } else {
-    // record this target;
-    targets[target.name] = target;
-
+    var room = settings.room;
     emitter.on('alert', function(name, level, lines) {
       if (name === target.name) {
-        cache[target.name] = {
+        cache[room] = {
+          name: target.name,
           count: lines.length,
           level: level,
           lines: lines.slice(0, 60),  // limit 60 lines
