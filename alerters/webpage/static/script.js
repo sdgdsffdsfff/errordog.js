@@ -55,11 +55,13 @@
     function pull() {
       if (!updateToggle)
         return;
-      $.get(api, function(data) {
-        if (updateAt < data.updateAt) {
-          addItem(data);
-          updateAt = data.updateAt;
-        }
+      $.get(api, function(list) {
+        list.forEach(function(data) {
+          if (updateAt < data.updateAt) {
+            addItem(data);
+            updateAt = data.updateAt;
+          }
+        });
       });
     }
 

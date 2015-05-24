@@ -13,13 +13,14 @@ const util     = require('util');
 
 const emitter  = new events.EventEmitter();
 const log      = logging.get('errordog.webpage');
-const cache    = {};    // {roomName: latestLines}
+const cache    = {};    // {roomName: latest data array}
 const loader   = new nunjucks.FileSystemLoader(path.join(__dirname, 'view'));
 const env      = new nunjucks.Environment(loader);
 
-var root;      // root url prefix
-var rooms;     // all room names
-var interval;  // client pull interval
+var root;       // root url prefix
+var rooms;      // all room names
+var interval;   // client pull interval
+var cacheCount; // cache data count in memory
 
 // e.g.
 //
@@ -62,11 +63,12 @@ var index = function *(room) {
 
 // @route '/_api/:room'
 var api = function *(room) {
-  var res = cache[room] || {updateAt: 0, level: null, count: null};
+  var res = cache[room] ||
+    [{updateAt: 0, level: null, count: null}];
   this.body = yield res;
 
-  log.info('get %s => level: %s, count: %s, updateAt: %d',
-           this.url, res.level, res.count, res.updateAt);
+  log.info('get %s => %d',
+           this.url, res.length);
 };
 
 var init = function(logLevel, settings) {
@@ -121,14 +123,22 @@ var connect = function(target, settings) {
     var room = settings.room;
     emitter.on('alert', function(name, level, lines) {
       if (name === target.name) {
-        cache[room] = {
+        var list = cache[room];
+
+        if (typeof list === 'undefined')
+          list = cache[room] = [];
+
+        if (list.length > cacheCount)
+          list.shift();
+
+        list.push({
           name: target.name,
           count: lines.length,
           level: level,
           lines: lines.slice(0, 60),  // limit 60 lines
           updateAt: +new Date(),
           interval: target.interval,
-        };
+        });
       }
     });
   }
