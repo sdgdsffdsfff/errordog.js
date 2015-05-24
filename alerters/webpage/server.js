@@ -159,4 +159,16 @@ var connect = function(target, settings) {
         break;
     }
   });
+
+  if (cluster.isMaster) {
+    // on signal term
+    process.on('SIGTERM', function() {
+      for (var id in cluster.workers) {
+        log.error('process exiting..');
+        cluster.workers[id].kill('SIGTERM');
+      }
+      log.error('cluster master exiting..');
+      process.exit(1);
+    });
+  }
 })();

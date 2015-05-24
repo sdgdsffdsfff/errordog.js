@@ -30,10 +30,11 @@ exports.init = function(config, settings) {
   child.send({type: 'init', logLevel: config.logging, settings: settings});
   log.info('server master forked, pid %d', child.pid);
 
-  // kill child on process exit
-  process.on('exit', function() {
-    log.info('term worker child process..');
+  // kill child on process sigterm
+  process.on('SIGTERM', function() {
     child.kill('SIGTERM');
+    log.error('main process exiting..');
+    process.exit(1);
   });
 };
 
