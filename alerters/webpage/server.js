@@ -87,6 +87,7 @@ var init = function(logLevel, settings) {
     root = settings.root || '';
     rooms = settings.rooms || [];
     interval = settings.interval || 5;
+    cacheCount = settings.cacheCount || 30;
     // init env global vars
     env.addGlobal('url', url);
     env.addGlobal('rooms', rooms);
