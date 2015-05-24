@@ -50,6 +50,7 @@ ul.main {
 
 li.item {
   width: 100%;
+  border: 0;
   border-bottom: 1px solid #999;
   display: table;
   table-layout: fixed;
@@ -63,7 +64,7 @@ li.item span.info {
 
 
 li.item pre {
-  padding: 0em 1em;
+  padding: 0 1em;
   display: table-cell;
   white-space: normal;
 }
@@ -72,7 +73,8 @@ li.item pre code {
   font: 14px/1.3 Menlo, Monaco, 'Andale Mono', 'Lucida Console', 'Courier New', monospace;
   margin: 0;
   white-space: pre-wrap;
-  height: 8.5em;
+  max-height: 8.5em;
+  min-height: 4.5em;
   overflow-y: scroll;
 }
 
