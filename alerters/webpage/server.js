@@ -60,6 +60,7 @@ function *api(room) {
   });
 
   this.body = yield list;
+  log.info('%s => %d', this.request.url, list.length);
 };
 
 
@@ -135,12 +136,11 @@ function initWorker(settings) {
   app.listen(port, function() {
     log.info('server worker started on port %d', port);
   });
+  log.debug('server worker initialized');
 }
 
 
 function connectWorker(target, settings) {
-  // FIXME: Dont know why, but workers sometimes are connected
-  // multiple times (numWorkers times), this happens on some linux plats.
   if (!('_maps' in globals))
     globals._maps = {};
 
@@ -148,8 +148,7 @@ function connectWorker(target, settings) {
     target: target,
     settings: settings,
   };
-
-  log.info('register %s in to server worker..', target.name);
+  log.debug('server worker registered with %s', target.name);
 }
 
 
@@ -176,7 +175,9 @@ function alertWorker(name, level, lines, stamp) {
     interval: interval,
   };
 
-  return list.push(data);
+  list.push(data);
+  log.debug('server worker alert, name: %s, count: %d, level: %d, stamp: %d',
+          data.name, data.count, data.level, data.stamp)
 }
 
 
