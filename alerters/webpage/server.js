@@ -63,10 +63,17 @@ var index = function *(room) {
 
 // @route '/_api/:room'
 var api = function *(room) {
-  var res = cache[room] || [];
-  this.body = yield res;
+  var list = cache[room] || [];
+  var time = +this.request.query.time || 0;
+
+  list = list.filter(function(data) {
+    return time < data.datetime;
+  })
+
+  this.body = yield list;
+
   log.info('get %s => count: %d',
-           this.url, res.length);
+           this.url, list.length);
 };
 
 var init = function(logLevel, settings) {
@@ -135,7 +142,7 @@ var connect = function(target, settings) {
           count: lines.length,
           level: level,
           lines: lines.slice(0, 60),  // limit 60 lines
-          updateAt: +new Date(),
+          datetime: +new Date(),
           interval: target.interval,
         });
       }

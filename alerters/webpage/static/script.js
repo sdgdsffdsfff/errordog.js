@@ -46,7 +46,7 @@
     var maxCount = 100;
     var curCount = 0;
     var placeholder = $('ul.main li.placeholder');
-    var updateAt = 1;
+    var updateAt = 0;
 
     pull(); setInterval(pull, interval * 1e3);
 
@@ -54,12 +54,11 @@
     function pull() {
       if (!updateToggle)
         return;
-      $.get(api, function(list) {
+      $.get(sprintf('{0}?time={1}', api, updateAt),
+            function(list) {
         list.forEach(function(data) {
-          if (updateAt < +(data.updateAt || 1)) {
-            addItem(data);
-            updateAt = +data.updateAt;
-          }
+          addItem(data);
+          updateAt = +data.datetime;
         });
       });
     }
@@ -90,7 +89,7 @@
       }
       child.attr('class', 'item ' + color);
       child.find('span p.datetime').text(
-        (new Date(data.updateAt)).toString().slice(0, 24));
+        (new Date(data.datetime)).toString().slice(0, 24));
       child.find('span p.message').text(
         sprintf('{0} => {1} errors in {2} secs',
                 data.name, data.count, data.interval));
