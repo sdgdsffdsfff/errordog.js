@@ -67,8 +67,8 @@ var api = function *(room) {
   var time = +this.request.query.time || 0;
 
   list = list.filter(function(data) {
-    return time < data.datetime;
-  })
+    return time < data.stamp;
+  });
 
   this.body = yield list;
 
@@ -118,16 +118,17 @@ var connect = function(target, settings) {
       var worker = cluster.workers[id];
       worker.send({type: 'connect', target: target, settings: settings});
     }
-    emitter.on('alert', function(name, level, lines) {
+    emitter.on('alert', function(name, level, lines, stamp) {
       // broadcast to workers
       for (var id in cluster.workers) {
         var worker = cluster.workers[id];
-        worker.send({type: 'alert', name: name, level: level, lines: lines});
+        worker.send({type: 'alert', name: name, level: level,
+                    lines: lines, stamp: stamp});
       }
     });
   } else {
     var room = settings.room;
-    emitter.on('alert', function(name, level, lines) {
+    emitter.on('alert', function(name, level, lines, stamp) {
       if (name === target.name) {
         var list = cache[room];
 
@@ -142,7 +143,7 @@ var connect = function(target, settings) {
           count: lines.length,
           level: level,
           lines: lines.slice(0, 60),  // limit 60 lines
-          datetime: +new Date(),
+          stamp: stamp,
           interval: target.interval,
         });
       }
@@ -162,7 +163,8 @@ var connect = function(target, settings) {
         connect(msg.target, msg.settings);
         break;
       case 'alert':
-        emitter.emit('alert', msg.name, msg.level, msg.lines);
+        emitter.emit('alert', msg.name, msg.level,
+                     msg.lines, msg.stamp);
         break;
     }
   });
