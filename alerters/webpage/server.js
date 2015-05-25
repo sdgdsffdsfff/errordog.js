@@ -139,6 +139,8 @@ function initWorker(settings) {
 
 
 function connectWorker(target, settings) {
+  // FIXME: Dont know why, but workers sometimes are connected
+  // multiple times (numWorkers times), this happens on some linux plats.
   if (!('_maps' in globals))
     globals._maps = {};
 
@@ -146,6 +148,8 @@ function connectWorker(target, settings) {
     target: target,
     settings: settings,
   };
+
+  log.info('register %s in to server worker..', target.name);
 }
 
 
