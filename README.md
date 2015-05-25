@@ -3,7 +3,19 @@ Error Dog
 
 :dog: Error log watch dog.
 
-    npm install errordog.js
+Install
+-------
+
+```bash
+npm install errordog.js
+```
+
+Usage
+-----
+
+```bash
+$ errordog <config-path> [<log-level>]
+```
 
 License
 -------
