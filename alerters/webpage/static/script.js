@@ -54,8 +54,8 @@
     function pull() {
       if (!updateToggle)
         return;
-      $.get(sprintf('{0}?time={1}', api, updateAt),
-            function(list) {
+      var uri = sprintf('{0}?time={1}', api, updateAt);
+      $.get(uri, function(list) {
         list.forEach(function(data) {
           addItem(data);
           updateAt = +data.stamp;
