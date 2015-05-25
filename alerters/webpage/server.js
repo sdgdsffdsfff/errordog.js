@@ -194,7 +194,7 @@ function mainWorker() {
   log.addRule({
     name: 'stderr',
     stream: process.stderr,
-    level: +process.argv[1]
+    level: +process.argv[2]
   });
 
   if (cluster.isMaster) {

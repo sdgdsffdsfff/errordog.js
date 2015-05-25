@@ -32,8 +32,8 @@ log.addRule({name: 'stderr', stream: process.stderr});
   var config = require(path);
 
   // logging level
-  var level = program.args[1] || 'INFO';
-  log.getRule('stderr').level = logging[level];
+  var levelName = program.args[1] || 'INFO';
+  log.getRule('stderr').level = logging[levelName];
 
   // init alerters
   config.alerters.forEach(function(item) {
