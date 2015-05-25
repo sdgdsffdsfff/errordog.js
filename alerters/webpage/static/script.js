@@ -88,8 +88,7 @@
           break;
       }
       child.attr('class', 'item ' + color);
-      child.find('span p.datetime').text(
-        (new Date(data.stamp)).toString().slice(0, 24));
+      child.find('span p.datetime').text(strftime(data.stamp));
       child.find('span p.message').text(
         sprintf('{0} => {1} errors in {2} secs',
                 data.name, data.count, data.interval));
@@ -112,4 +111,30 @@ function sprintf() {
   return fmt.replace(/{(\d+)}/g, function(match, idx) {
     return typeof args[idx] != 'undefined'? args[idx] : match;
   });
+}
+
+// convert unix timestamp to readable string format
+// //
+// // @param {Number} secs
+// // @return {String}
+// //
+function strftime(stamp) {
+  var date = new Date(stamp);
+  // getMonth() return 0~11 numbers
+  var month = date.getMonth() + 1;
+  var day = date.getDate();
+  var hours = date.getHours();
+  var minutes = date.getMinutes();
+  var seconds = date.getSeconds();
+  var millsecs = date.getMilliseconds();
+
+  // normalize
+  month = ('00' + month).slice(-2);
+  day = ('00' + day).slice(-2);
+  hours = ('00' + hours).slice(-2);
+  minutes = ('00' + minutes).slice(-2);
+  seconds = ('00' + seconds).slice(-2);
+  millsecs = ('000' + millsecs).slice(-3);
+  return sprintf('{0}/{1} {2}:{3}:{4},{5}',
+                month, day, hours, minutes, seconds, millsecs);
 }
