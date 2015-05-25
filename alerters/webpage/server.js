@@ -10,6 +10,7 @@ const path     = require('path');
 const route    = require('koa-route');
 const static_  = require('koa-static');
 const util     = require('util');
+const version  = require('../../package.json').version;
 
 const emitter  = new events.EventEmitter();
 const log      = logging.get('errordog.webpage');
@@ -96,6 +97,7 @@ var init = function(logLevel, settings) {
     interval = settings.interval || 5;
     cacheCount = settings.cacheCount || 30;
     // init env global vars
+    env.addGlobal('version', version);
     env.addGlobal('url', url);
     env.addGlobal('rooms', rooms);
     env.addGlobal('interval', interval);
