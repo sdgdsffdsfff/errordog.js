@@ -82,11 +82,19 @@ li.placeholder {
   display: none;
 }
 
+li.item span.info .message {
+  padding: 1em 0;
+}
+
+li.item span.info .datetime {
+  color: #777;
+}
+
 li.item span.info {
   color: #333;
 }
 
-li.item.red span.info {
+li.item.red span.info .message {
   color: #c03;
   font-weight: 600;
 }
