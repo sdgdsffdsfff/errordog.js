@@ -1,69 +1,57 @@
 'use strict';
 
-const cluster  = require('cluster');
-const events   = require('events');
-const logging  = require('logging.js');
-const koa      = require('koa');
-const mount    = require('koa-mount');
-const nunjucks = require('nunjucks');
-const path     = require('path');
-const route    = require('koa-route');
-const static_  = require('koa-static');
-const util     = require('util');
-const version  = require('../../package.json').version;
+const cluster   = require('cluster');
+const koa       = require('koa');
+const mount     = require('koa-mount');
+const route     = require('koa-route');
+const static_   = require('koa-static');
+const logging   = require('logging.js');
+const nunjucks  = require('nunjucks');
+const path      = require('path');
+const util      = require('util');
+const version   = require('../../package').version;
+const loader    = new nunjucks.FileSystemLoader(path.join(__dirname, 'view'));
+const env       = new nunjucks.Environment(loader);
+const log       = logging.get('errordog.webpage.server');
+const cache     = {};   // {roomName: latestItems}
+const globals   = {};   // global vars
+const MAX_LINES = 60;
 
-const emitter  = new events.EventEmitter();
-const log      = logging.get('errordog.webpage');
-const cache    = {};    // {roomName: latest data array}
-const loader   = new nunjucks.FileSystemLoader(path.join(__dirname, 'view'));
-const env      = new nunjucks.Environment(loader);
 
-var root;       // root url prefix
-var rooms;      // all room names
-var interval;   // client pull interval
-var cacheCount; // cache data count in memory
+function url(route, params) {
+  var s = path.join('/', globals.root, route);
 
-// e.g.
-//
-//   url('/user', {name: 'foo', age: 17})
-//   // => '/user?name=foo&age=17'
-//
-var url = function(route, params) {
-    var s = path.join('/', root, route);
-    if (params) {
-      var pairs = [];
-      for (var key in params) {
-        var list = [key, params[key]];
-        var str = list.map(encodeURIComponent).join('=');
-        pairs.push(str);
-      }
-      s += '?' + pairs.join('&');
+  if (params) {
+    var pairs = [];
+
+    for (var key in params) {
+      var list = [key, params[key]];
+      var item = list.map(encodeURIComponent).join('=');
+      pairs.push(item);
     }
-    return s;
-};
-
-// make nunjucks works with koa
-var render = function (tpl, ctx) {
-  return function(cb) {
-    env.render(tpl, ctx, cb);
+    s += '?' + pairs.join('&');
   }
-};
+  return s;
+}
 
-// @route '/:room' & '/'
-var index = function *(room) {
+
+function render(tpl, ctx) {
+  return function(cb) {
+    return env.render(tpl, ctx, cb);
+  };
+}
+
+function *index(room) {
   if (typeof room !== 'string') {
+    // empty object
     this.body = yield render('index.html');
   } else {
-    this.body = yield render('room.html', {
-      room: room,
-      api: url('/_api/' + room)
-    });
+    var data = {room: room, api: url('/_api/' + room)};
+    this.body = yield render('room.html', data);
   }
-  log.info('get %s', this.url);
-};
+}
 
-// @route '/_api/:room'
-var api = function *(room) {
+function *api(room) {
   var list = cache[room] || [];
   var time = +this.request.query.time || 0;
 
@@ -72,114 +60,146 @@ var api = function *(room) {
   });
 
   this.body = yield list;
-
-  log.info('get %s => count: %d',
-           this.url, list.length);
 };
 
-var init = function(logLevel, settings) {
-  // we are in child process(worker/matser), not in dog's process
-  // logging's propagate is not working here, for two copies memory
-  // are separate.
-  log.addRule({name: 'stderr', stream: process.stderr, level: logging[logLevel]});
 
-  if (cluster.isMaster) {
-    var numWorkers = settings.workers || 4;
-    for (var i = 0; i < numWorkers; i++) {
-      var worker = cluster.fork();
-      worker.send({type: 'init', logLevel: logLevel, settings: settings});
-      log.info('server worker forked, pid: %d', worker.process.pid);
-    }
-  } else {
-    // reset global vars
-    root = settings.root || '';
-    rooms = settings.rooms || [];
-    interval = settings.interval || 5;
-    cacheCount = settings.cacheCount || 30;
-    // init env global vars
-    env.addGlobal('version', version);
-    env.addGlobal('url', url);
-    env.addGlobal('rooms', rooms);
-    env.addGlobal('interval', interval);
-    // start app
-    var port = settings.port || 9527;
-    var app = koa();
-    app.use(mount(url('/static'), static_(path.join(__dirname, 'static'))));
-    app.use(route.get(url('/_api/:room'), api));
-    app.use(route.get(url('/'), index));
-    app.use(route.get(url('/:room'), index));
-    app.listen(port, function() {
-      log.info('server worker started on port %d..', port);
-    });
+function initMaster(settings) {
+  var numWorkers = settings.workers || 4;
+
+  for (var i = 0; i < numWorkers; i++) {
+    var worker = cluster.fork();
+    worker.send({type: 'initWorker',settings: settings});
+    log.info('server master forked worker %d', worker.id);
   }
-};
+}
 
-var connect = function(target, settings) {
-  if (cluster.isMaster) {
-    for (var id in cluster.workers) {
-      var worker = cluster.workers[id];
-      worker.send({type: 'connect', target: target, settings: settings});
-    }
-    emitter.on('alert', function(name, level, lines, stamp) {
-      // broadcast to workers
-      for (var id in cluster.workers) {
-        var worker = cluster.workers[id];
-        worker.send({type: 'alert', name: name, level: level,
-                    lines: lines, stamp: stamp});
-      }
-    });
-  } else {
-    var room = settings.room;
-    emitter.on('alert', function(name, level, lines, stamp) {
-      if (name === target.name) {
-        var list = cache[room];
 
-        if (typeof list === 'undefined')
-          list = cache[room] = [];
-
-        if (list.length > cacheCount)
-          list.shift();
-
-        list.push({
-          name: target.name,
-          count: lines.length,
-          level: level,
-          lines: lines.slice(0, 60),  // limit 60 lines
-          stamp: stamp,
-          interval: target.interval,
-        });
-      }
-    });
+function connectMaster(target, settings) {
+  for (var id in cluster.workers) {
+    var worker = cluster.workers[id];
+    worker.send({type: 'connectWorker', target: target, settings: settings});
   }
-};
+}
 
-(function() {
-  // if current process is master, recv message from errordog main process
-  // if current process is worker, recv message from server master process
+
+function alertMaster(name, level, lines, stamp) {
+  for (var id in cluster.workers) {
+    var worker = cluster.workers[id];
+    worker.send({type: 'alertWorker', name: name, level: level, lines: lines, stamp: stamp});
+  }
+}
+
+
+function mainMaster() {
   process.on('message', function(msg) {
-    switch (msg.type) {
-      case 'init':
-        init(msg.logLevel, msg.settings);
-        break;
-      case 'connect':
-        connect(msg.target, msg.settings);
-        break;
-      case 'alert':
-        emitter.emit('alert', msg.name, msg.level,
-                     msg.lines, msg.stamp);
-        break;
+    switch(msg.type) {
+      case 'initMaster':
+        return initMaster(msg.settings);
+      case 'connectMaster':
+        return connectMaster(msg.target, msg.settings);
+      case 'alertMaster':
+        return alertMaster(msg.name, msg.level, msg.lines, msg.stamp);
     }
   });
 
+  process.on('SIGTERM', function() {
+    for (var id in cluster.workers) {
+      log.error('server worker exiting on sigterm..');
+      cluster.workers[id].kill('SIGTERM');
+    }
+
+    log.error('server master exiting on sigterm..');
+    process.exit(1);
+  });
+}
+
+function initWorker(settings) {
+  var root = globals.root = settings.root || '';
+  var rooms = globals.rooms = settings.rooms || [];
+  var interval = globals.interval = settings.interval || 5;
+  var cacheCount = globals.cacheCount = settings.cacheCount || 30;
+  var port = globals.port = settings.port || 9527;
+
+  env.addGlobal('version', version);
+  env.addGlobal('url', url);
+  env.addGlobal('rooms', rooms);
+  env.addGlobal('interval', interval);
+
+  var app = koa();
+
+  app.use(mount(url('/static'), static_(path.join(__dirname, 'static'))));
+  app.use(route.get(url('/_api/:room'), api));
+  app.use(route.get(url('/'), index));
+  app.use(route.get(url('/:room'), index));
+
+  app.listen(port, function() {
+    log.info('server worker started on port %d', port);
+  });
+}
+
+
+function connectWorker(target, settings) {
+  if (!('_maps' in globals))
+    globals._maps = {};
+
+  globals._maps[target.name] = {
+    target: target,
+    settings: settings,
+  };
+}
+
+
+function alertWorker(name, level, lines, stamp) {
+  if (!(name in globals._maps))
+    return;
+
+  var room = globals._maps[name].settings.room;
+  var list = cache[room];
+  var interval = globals._maps[name].target.interval;
+
+  if (typeof list === 'undefined')
+    list = cache[room] = [];
+
+  if (list.length > globals.cacheCount)
+    list.shift();
+
+  var data = {
+    name: name,
+    count: lines.length,
+    level: level,
+    lines: lines.slice(0, MAX_LINES),
+    stamp: stamp,
+    interval: interval,
+  };
+
+  return list.push(data);
+}
+
+
+function mainWorker() {
+  process.on('message', function(msg){
+    switch(msg.type) {
+      case 'initWorker':
+        return initWorker(msg.settings);
+      case 'connectWorker':
+        return connectWorker(msg.target, msg.settings);
+      case 'alertWorker':
+        return alertWorker(msg.name, msg.level, msg.lines, msg.stamp);
+    }
+  });
+}
+
+(function() {
+  // init logger
+  log.addRule({
+    name: 'stderr',
+    stream: process.stderr,
+    level: +process.argv[1]
+  });
+
   if (cluster.isMaster) {
-    // on signal term
-    process.on('SIGTERM', function() {
-      for (var id in cluster.workers) {
-        log.error('process exiting..');
-        cluster.workers[id].kill('SIGTERM');
-      }
-      log.error('cluster master exiting..');
-      process.exit(1);
-    });
+    mainMaster();
+  } else if (cluster.isWorker) {
+    mainWorker();
   }
-})();
+})()

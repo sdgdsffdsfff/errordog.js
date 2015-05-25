@@ -19,30 +19,42 @@ const logging       = require('logging.js');
 const path          = require('path');
 const log           = logging.get('errordog.webpage');
 
-var child;  // web server master process
+var child;
 
 exports.name = 'webpage';
 
-// initialize this alerter with dog's config and its global settings
 exports.init = function(config, settings) {
-  child = child_process.fork(path.join(__dirname, 'server'));
-  child.send({type: 'init', logLevel: config.logging, settings: settings});
-  log.info('server master forked, pid %d', child.pid);
+  var modulePath = path.join(__dirname, 'server');
+  var args = [log.getRule('stderr').level];
+  child = child_process.fork(modulePath, args);
+  child.send({type: 'initMaster', settings: settings});
+  log.info('server master forked, pid: %d', child.pid);
 
-  // kill child on process sigterm
+  // kill child on sigterm
   process.on('SIGTERM', function() {
     child.kill('SIGTERM');
-    log.error('main process exiting..');
+    log.error('main process exiting on sigterm..');
     process.exit(1);
+  });
+
+  process.on('exit', function() {
+    child.kill('SIGTERM');
+    log.error('main process exiting..');
+    process.exit(0);
   });
 };
 
-// connect this alerter to `target` with this target's `settings`
-// for this alerter.
 exports.connect = function(target, settings) {
-  child.send({type: 'connect', target: target, settings: settings});
+  // send to server master
+  child.send({type: 'connectMaster', target: target, settings: settings});
+
   target.emitter.on('alert', function(level, lines) {
-    child.send({type: 'alert', name: target.name, level: level, lines: lines,
-               stamp: +new Date()});
+    child.send({
+      type: 'alertMaster',
+      name: target.name,
+      level: level,
+      lines: lines,
+      stamp: +new Date()
+    });
   });
 };
