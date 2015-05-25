@@ -1,7 +1,10 @@
 // Error log watch dog. https://github.com/eleme/errordog.js
 // MIT. Copyright (c) 2014 - 20015 Eleme, Inc.
 // Only avaliable on Unix(with GNU tail).
-// Usage: $ errordog <config>
+//
+// Usage:
+//
+//   $ errordog <config> [<logging-level>]
 
 'use strict';
 
@@ -18,10 +21,10 @@ log.addRule({name: 'stderr', stream: process.stderr});
   // argv parsing
   program
     .version(version)
-    .usage('<config>')
+    .usage('<config> [<logging-level>]')
     .parse(process.argv);
 
-  // update config
+  // require config
   var path = program.args[0];
   if (!path)
     return program.help();
@@ -29,7 +32,8 @@ log.addRule({name: 'stderr', stream: process.stderr});
   var config = require(path);
 
   // logging level
-  log.getRule('stderr').level = logging[config.logging];
+  var level = program.args[1] || 'INFO';
+  log.getRule('stderr').level = logging[level];
 
   // init alerters
   config.alerters.forEach(function(item) {
