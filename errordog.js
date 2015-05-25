@@ -33,7 +33,7 @@ log.addRule({name: 'stderr', stream: process.stderr});
 
   // logging level
   var levelName = program.args[1] || 'INFO';
-  log.getRule('stderr').level = logging[levelName];
+  log.getRule('stderr').level = logging[levelName.toUpperCase()];
 
   // init alerters
   config.alerters.forEach(function(item) {
