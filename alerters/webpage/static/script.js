@@ -58,7 +58,7 @@
             function(list) {
         list.forEach(function(data) {
           addItem(data);
-          updateAt = +data.datetime;
+          updateAt = +data.stamp;
         });
       });
     }
@@ -89,7 +89,7 @@
       }
       child.attr('class', 'item ' + color);
       child.find('span p.datetime').text(
-        (new Date(data.datetime)).toString().slice(0, 24));
+        (new Date(data.stamp)).toString().slice(0, 24));
       child.find('span p.message').text(
         sprintf('{0} => {1} errors in {2} secs',
                 data.name, data.count, data.interval));
