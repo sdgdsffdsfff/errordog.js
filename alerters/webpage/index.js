@@ -9,7 +9,7 @@
 //
 // Target Settings
 //
-//    room              room name to send to
+//    rooms             rooms to send to
 //
 
 'use strict';

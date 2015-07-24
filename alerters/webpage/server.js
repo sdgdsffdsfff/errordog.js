@@ -156,26 +156,31 @@ function alertWorker(name, level, lines, stamp) {
   if (!(name in globals._maps))
     return;
 
-  var room = globals._maps[name].settings.room;
-  var list = cache[room];
   var interval = globals._maps[name].target.interval;
+  var rooms = globals._maps[name].settings.rooms;
 
-  if (typeof list === 'undefined')
-    list = cache[room] = [];
+  for (var i = 0; i < rooms.length; i++) {
+    var room = rooms[i];
+    var list = cache[room];
 
-  if (list.length > globals.cacheCount)
-    list.shift();
+    if (typeof list === 'undefined')
+      list = cache[room] = [];
 
-  var data = {
-    name: name,
-    count: lines.length,
-    level: level,
-    lines: lines.slice(0, MAX_LINES),
-    stamp: stamp,
-    interval: interval,
-  };
+    if (list.length > globals.cacheCount)
+      list.shift();
 
-  list.push(data);
+    var data = {
+      name: name,
+      count: lines.length,
+      level: level,
+      lines: lines.slice(0, MAX_LINES),
+      stamp: stamp,
+      interval: interval,
+    };
+
+    list.push(data);
+  }
+
   log.debug('server worker alert, name: %s, count: %d, level: %d, stamp: %d',
           data.name, data.count, data.level, data.stamp)
 }
