@@ -103,15 +103,15 @@ function mainMaster() {
     }
   });
 
-  process.on('SIGTERM', function() {
-    for (var id in cluster.workers) {
-      log.error('server worker exiting on sigterm..');
-      cluster.workers[id].kill('SIGTERM');
-    }
+  // process.on('SIGTERM', function() {
+  //   for (var id in cluster.workers) {
+  //     log.info('server worker exiting on sigterm..');
+  //     cluster.workers[id].kill('SIGTERM');
+  //   }
 
-    log.error('server master exiting on sigterm..');
-    process.exit(1);
-  });
+  //   log.error('server master exiting on sigterm..');
+  //   process.exit(0);
+  // });
 }
 
 function initWorker(settings) {
