@@ -30,18 +30,13 @@ exports.init = function(config, settings) {
   child.send({type: 'initMaster', settings: settings});
   log.info('server master forked, pid: %d', child.pid);
 
-  // kill child on sigterm
-  process.on('SIGTERM', function() {
+  var exitServer = function(code) {
     child.kill('SIGTERM');
-    log.error('main process exiting on sigterm..');
-    process.exit(1);
-  });
+    log.info('web server closing..');
+    process.exit(code);
+  };
 
-  process.on('exit', function() {
-    child.kill('SIGTERM');
-    log.error('main process exiting..');
-    process.exit(0);
-  });
+  process.on('exit', exitServer);
 };
 
 exports.connect = function(target, settings) {

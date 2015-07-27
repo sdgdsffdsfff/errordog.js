@@ -102,16 +102,6 @@ function mainMaster() {
         return alertMaster(msg.name, msg.level, msg.lines, msg.stamp);
     }
   });
-
-  process.on('SIGTERM', function() {
-    for (var id in cluster.workers) {
-      log.error('server worker exiting on sigterm..');
-      cluster.workers[id].kill('SIGTERM');
-    }
-
-    log.error('server master exiting on sigterm..');
-    process.exit(1);
-  });
 }
 
 function initWorker(settings) {
