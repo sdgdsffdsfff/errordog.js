@@ -8,7 +8,6 @@ const static_   = require('koa-static');
 const logging   = require('logging.js');
 const nunjucks  = require('nunjucks');
 const path      = require('path');
-const util      = require('util');
 const version   = require('../../package').version;
 const loader    = new nunjucks.FileSystemLoader(path.join(__dirname, 'view'));
 const env       = new nunjucks.Environment(loader);
