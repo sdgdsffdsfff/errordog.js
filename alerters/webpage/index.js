@@ -14,7 +14,7 @@
 
 'use strict';
 
-const childProcess = require('child_process');
+const childProcess  = require('child_process');
 const logging       = require('logging.js');
 const path          = require('path');
 const log           = logging.get('errordog.webpage');

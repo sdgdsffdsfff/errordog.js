@@ -19,7 +19,7 @@ log.addRule({name: 'stderr', stream: process.stderr});
 
 // may be harmful, see
 // http://stackoverflow.com/questions/9768444/possible-eventemitter-memory-leak-detected
-process.setMaxListeners(0);
+require('events').EventEmitter.defaultMaxListeners = 100;
 
 (function() {
   // argv parsing

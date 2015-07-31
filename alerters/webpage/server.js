@@ -152,6 +152,16 @@ function alertWorker(name, level, lines, stamp) {
   var interval = globals._maps[name].target.interval;
   var rooms = globals._maps[name].settings.rooms;
 
+  var data = {
+    name: name,
+    count: lines.length,
+    level: level,
+    lines: lines.slice(0, MAX_LINES),
+    stamp: stamp,
+    interval: interval,
+  };
+
+
   for (var i = 0; i < rooms.length; i++) {
     var room = rooms[i];
     var list = cache[room];
@@ -164,20 +174,11 @@ function alertWorker(name, level, lines, stamp) {
       list.shift();
     }
 
-    var data = {
-      name: name,
-      count: lines.length,
-      level: level,
-      lines: lines.slice(0, MAX_LINES),
-      stamp: stamp,
-      interval: interval,
-    };
-
     list.push(data);
-
-    log.debug('server worker alert, name: %s, count: %d, level: %d, stamp: %d',
-              data.name, data.count, data.level, data.stamp);
   }
+
+  log.debug('server worker alert, name: %s, count: %d, level: %d, stamp: %d',
+            data.name, data.count, data.level, data.stamp);
 }
 
 
