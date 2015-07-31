@@ -1,0 +1,4 @@
+alerters/webpage/static
+node_modules
+test*
+bin

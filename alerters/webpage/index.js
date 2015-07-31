@@ -14,7 +14,7 @@
 
 'use strict';
 
-const child_process = require('child_process');
+const childProcess = require('child_process');
 const logging       = require('logging.js');
 const path          = require('path');
 const log           = logging.get('errordog.webpage');
@@ -26,7 +26,7 @@ exports.name = 'webpage';
 exports.init = function(config, settings) {
   var modulePath = path.join(__dirname, 'server');
   var args = [log.getRule('stderr').level];
-  child = child_process.fork(modulePath, args);
+  child = childProcess.fork(modulePath, args);
   child.send({type: 'initMaster', settings: settings});
   log.info('server master forked, pid: %d', child.pid);
 

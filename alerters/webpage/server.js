@@ -16,6 +16,7 @@ const cache     = {};   // {roomName: latestItems}
 const globals   = {};   // global vars
 const MAX_LINES = 60;
 
+// jshint -W040
 
 function url(route, params) {
   var s = path.join('/', globals.root, route);
@@ -60,7 +61,7 @@ function *api(room) {
 
   this.body = yield list;
   log.info('%s => %d', this.request.url, list.length);
-};
+}
 
 
 function initMaster(settings) {
@@ -85,7 +86,8 @@ function connectMaster(target, settings) {
 function alertMaster(name, level, lines, stamp) {
   for (var id in cluster.workers) {
     var worker = cluster.workers[id];
-    worker.send({type: 'alertWorker', name: name, level: level, lines: lines, stamp: stamp});
+    worker.send({type: 'alertWorker', name: name, level: level, lines: lines,
+                stamp: stamp});
   }
 }
 
@@ -130,8 +132,9 @@ function initWorker(settings) {
 
 
 function connectWorker(target, settings) {
-  if (!('_maps' in globals))
+  if (!('_maps' in globals)) {
     globals._maps = {};
+  }
 
   globals._maps[target.name] = {
     target: target,
@@ -142,8 +145,9 @@ function connectWorker(target, settings) {
 
 
 function alertWorker(name, level, lines, stamp) {
-  if (!(name in globals._maps))
+  if (!(name in globals._maps)) {
     return;
+  }
 
   var interval = globals._maps[name].target.interval;
   var rooms = globals._maps[name].settings.rooms;
@@ -152,11 +156,13 @@ function alertWorker(name, level, lines, stamp) {
     var room = rooms[i];
     var list = cache[room];
 
-    if (typeof list === 'undefined')
+    if (typeof list === 'undefined') {
       list = cache[room] = [];
+    }
 
-    if (list.length > globals.cacheCount)
+    if (list.length > globals.cacheCount) {
       list.shift();
+    }
 
     var data = {
       name: name,
@@ -171,7 +177,7 @@ function alertWorker(name, level, lines, stamp) {
   }
 
   log.debug('server worker alert, name: %s, count: %d, level: %d, stamp: %d',
-          data.name, data.count, data.level, data.stamp)
+          data.name, data.count, data.level, data.stamp);
 }
 
 
@@ -201,4 +207,4 @@ function mainWorker() {
   } else if (cluster.isWorker) {
     mainWorker();
   }
-})()
+})();

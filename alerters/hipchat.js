@@ -45,8 +45,9 @@ exports.connect = function(target, settings) {
       'color'  : color || 'gray'
     };
     return request.post({uri: uri, form: form}, function(err, res, body) {
-      if (err)
+      if (err) {
         log.error('%s', err.stack);
+      }
     });
   };
 
@@ -56,11 +57,13 @@ exports.connect = function(target, settings) {
 
     var color = colors[level];
 
-    if (level == 2 && atwho.length > 0)
+    if (level === 2 && atwho.length > 0) {
       alert(util.format('%s %d errors in last %d secs', atwho.join(' '),
                         lines.length, target.interval), color, false);
+    }
 
-    if (lines.length > 0)
+    if (lines.length > 0) {
       alert(lines.join('\n').slice(0, 9900), color, true);
+    }
   });
 };

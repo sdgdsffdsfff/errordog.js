@@ -26,8 +26,10 @@ log.addRule({name: 'stderr', stream: process.stderr});
 
   // require config
   var path = program.args[0];
-  if (!path)
+
+  if (!path) {
     return program.help();
+  }
 
   var config = require(path);
 
