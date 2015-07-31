@@ -174,10 +174,10 @@ function alertWorker(name, level, lines, stamp) {
     };
 
     list.push(data);
-  }
 
-  log.debug('server worker alert, name: %s, count: %d, level: %d, stamp: %d',
-          data.name, data.count, data.level, data.stamp);
+    log.debug('server worker alert, name: %s, count: %d, level: %d, stamp: %d',
+              data.name, data.count, data.level, data.stamp);
+  }
 }
 
 
