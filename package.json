@@ -24,7 +24,7 @@
       "request": "~2.55"
     },
     "devDependencies": {
-      "jsint": "~2.8.0"
+      "jshint": "~2.8.0"
     },
     "bin": {
         "errordog": "./bin/errordog.js"

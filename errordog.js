@@ -17,6 +17,10 @@ const log      = logging.get('errordog');
 
 log.addRule({name: 'stderr', stream: process.stderr});
 
+// may be harmful, see
+// http://stackoverflow.com/questions/9768444/possible-eventemitter-memory-leak-detected
+process.setMaxListeners(0);
+
 (function() {
   // argv parsing
   program
