@@ -1,12 +1,14 @@
-// Global Settings
-//   token          hipchat token (required)
-//
-// Target Settings
-//   room           room id (required)
-//   from           message was sent from, default: target.name
-//   notify         should notify users, default: true
-//   messageFormat  messageFormat, default: 'text'
-//   atwho          hipchat ids to `@`, default: []
+/**
+ * Global Settings
+ *   token          hipchat token (required)
+ *
+ * Target Settings
+ *   room           room id (required)
+ *   from           message was sent from, default: target.name
+ *   notify         should notify users, default: true
+ *   messageFormat  messageFormat, default: 'text'
+ *   atwho          hipchat ids to `@`, default: []
+ */
 
 'use strict';
 
@@ -20,13 +22,13 @@ var uri;
 
 exports.name = 'hipchat';
 
-// initialize this alerter with dog's config and its global settings
+// Initialize this alerter with dog's config and its global settings
 exports.init = function(config, settings) {
   uri = ('http://api.hipchat.com/v1/rooms/message' +
          '?format=json&auth_token=' + settings.token);
 };
 
-// connect this alerter to `target` with this target's `settings`
+// Connect this alerter to `target` with this target's `settings`
 // for this alerter.
 exports.connect = function(target, settings) {
   var roomId        = settings.room;

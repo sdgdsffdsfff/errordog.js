@@ -1,53 +1,72 @@
-// Error log watch dog. https://github.com/eleme/errordog.js
-// MIT. Copyright (c) 2014 - 20015 Eleme, Inc.
-// Only avaliable on Unix(with GNU tail).
-//
-// Usage:
-//
-//   $ errordog <config> [<logging-level>]
+/**
+ * @fileoverview Error log watch dog. https://github.com/eleme/errordog.js
+ * @author Chao Wang (hit9)
+ * @copyright MIT. Copyright (c) 2014 - 20015 Eleme, Inc.
+ *
+ * Only avaliable on Unix(with GNU tail).
+ *
+ * Usage:
+ *
+ *   $ errordog <config> [<logging-level>]
+ */
 
 'use strict';
 
-const logging  = require('logging.js');
+const events   = require('events');
 const program  = require('commander');
+const logging  = require('logging');
+const log      = logging.get('errordog');
 const Target   = require('./lib/target');
 const util     = require('./lib/util');
 const version  = require('./package').version;
-const log      = logging.get('errordog');
-
-log.addRule({name: 'stderr', stream: process.stderr});
 
 // may be harmful, see
 // http://stackoverflow.com/questions/9768444/possible-eventemitter-memory-leak-detected
-require('events').EventEmitter.defaultMaxListeners = 100;
+events.EventEmitter.defaultMaxListeners = 100;
+
 
 (function() {
-  // argv parsing
-  program
-    .version(version)
-    .usage('<config> [<logging-level>]')
-    .parse(process.argv);
+  var path,
+      config,
+      levelName;
 
-  // require config
-  var path = program.args[0];
+  //---------------------------------------------------------
+  // Command line arguments parsing
+  //---------------------------------------------------------
+  program
+  .version(version)
+  .usage('<config> [<logging-level>]')
+  .parse(process.argv);
+
+  //---------------------------------------------------------
+  // Read config
+  //---------------------------------------------------------
+  path = program.args[0];
 
   if (!path) {
     return program.help();
   }
 
-  var config = require(path);
+  config = require(path);
 
-  // logging level
-  var levelName = program.args[1] || 'INFO';
+  //---------------------------------------------------------
+  // Configure logging
+  //---------------------------------------------------------
+  levelName = program.args[1] || 'INFO';
+  log.addRule({name: 'stderr', stream: process.stderr});
   log.getRule('stderr').level = logging[levelName.toUpperCase()];
 
-  // init alerters
+  //---------------------------------------------------------
+  // Initialize alerters
+  //---------------------------------------------------------
   config.alerters.forEach(function(item) {
     item.alerter.init(config, item.settings);
-    log.info('alerter %s => initialized', item.alerter.name);
+    log.info("alerter %s => initialized", item.alerter.name);
   });
 
-  // watch targets
+  //---------------------------------------------------------
+  // Initialize targets
+  //---------------------------------------------------------
   config.targets.forEach(function(options) {
     var target = new Target(options);
     target.connect();
