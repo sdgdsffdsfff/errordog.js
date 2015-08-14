@@ -15,10 +15,10 @@
 const events   = require('events');
 const program  = require('commander');
 const logging  = require('logging');
-const log      = logging.get('errordog');
 const Target   = require('./lib/target');
 const util     = require('./lib/util');
 const version  = require('./package').version;
+const log      = logging.get('errordog');
 
 // may be harmful, see
 // http://stackoverflow.com/questions/9768444/possible-eventemitter-memory-leak-detected

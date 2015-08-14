@@ -1,3 +1,8 @@
+/**
+ * @fileoverview ErrorDog WebPage Web Server.
+ *
+ */
+
 'use strict';
 
 const cluster   = require('cluster');
@@ -18,15 +23,29 @@ const MAX_LINES = 60;
 
 // jshint -W040
 
+
+/**
+ * Util to join url route with request params.
+ *
+ *  @param {String} route
+ *  @param {Object} params
+ *  @return {String}
+ */
 function url(route, params) {
-  var s = path.join('/', globals.root, route);
+  var s,
+      pairs,
+      key,
+      list,
+      item;
+
+  s = path.join('/', globals.root, route);
 
   if (params) {
-    var pairs = [];
+    pairs = [];
 
-    for (var key in params) {
-      var list = [key, params[key]];
-      var item = list.map(encodeURIComponent).join('=');
+    for (key in params) {
+      list = [key, params[key]];
+      item = list.map(encodeURIComponent).join('=');
       pairs.push(item);
     }
     s += '?' + pairs.join('&');
@@ -35,63 +54,123 @@ function url(route, params) {
 }
 
 
+/**
+ * Render ``ctx`` with ``tpl``.
+ *
+ * @param {String} tpl // template filename
+ * @param {Object} ctx // render context
+ * @return {String}
+ */
 function render(tpl, ctx) {
   return function(cb) {
     return env.render(tpl, ctx, cb);
   };
 }
 
+/**
+ * @route index '/{room}'
+ * @param {String} room
+ */
 function *index(room) {
+  var data;
+
   if (typeof room !== 'string') {
     // empty object
     this.body = yield render('index.html');
   } else {
-    var data = {room: room, api: url('/_api/' + room)};
+    data = {
+      room: room,
+      api: url('/_api/' + room)
+    };
     this.body = yield render('room.html', data);
   }
 }
 
+/**
+ * @route api '/_api/{room}'
+ * @param {String} room
+ */
 function *api(room) {
-  var list = cache[room] || [];
-  var time = +this.request.query.time || 0;
+  var list,
+      time;
+
+  list = cache[room] || [];
+  time = +this.request.query.time || 0;
 
   list = list.filter(function(data) {
     return time < data.stamp;
   });
 
   this.body = yield list;
-  log.info('%s => %d', this.request.url, list.length);
+  log.info("%s => %d", this.request.url, list.length);
 }
 
-
+/**
+ * Init web master and fork workers
+ *
+ * @param {Object} settings // main webpage settings
+ */
 function initMaster(settings) {
-  var numWorkers = settings.workers || 4;
+  var numWorkers, i, worker;
 
-  for (var i = 0; i < numWorkers; i++) {
-    var worker = cluster.fork();
-    worker.send({type: 'initWorker',settings: settings});
-    log.info('server master forked worker %d', worker.id);
+  numWorkers = settings.workers || 4;
+
+  for (i = 0; i < numWorkers; i++) {
+    worker = cluster.fork();
+    worker.send({
+      type: 'initWorker',
+      settings: settings
+    });
+    log.info("server master forked worker %d", worker.id);
   }
 }
 
-
+/**
+ * Connect web master with ``target`` and ``settings``.
+ *
+ * @param {String} target
+ * @param {Object} settings
+ */
 function connectMaster(target, settings) {
-  for (var id in cluster.workers) {
-    var worker = cluster.workers[id];
-    worker.send({type: 'connectWorker', target: target, settings: settings});
+  var id, worker;
+
+  for (id in cluster.workers) {
+    worker = cluster.workers[id];
+    worker.send({
+      type: 'connectWorker',
+      target: target,
+      settings: settings
+    });
   }
 }
 
-
+/**
+ * Alert work in master with on ``alert`` event.
+ *
+ * @param {String} name
+ * @param {Number} level
+ * @param {Array} lines
+ * @param {Number} stamp
+ */
 function alertMaster(name, level, lines, stamp) {
-  for (var id in cluster.workers) {
-    var worker = cluster.workers[id];
-    worker.send({type: 'alertWorker', name: name, level: level, lines: lines,
-                stamp: stamp});
+  var id, worker;
+
+  for (id in cluster.workers) {
+    worker = cluster.workers[id];
+    worker.send({
+      type: 'alertWorker',
+      name: name,
+      level: level,
+      lines: lines,
+      stamp: stamp
+    });
   }
 }
 
 
+/**
+ * Dispatch works on different messages in master.
+ */
 function mainMaster() {
   process.on('message', function(msg) {
     switch(msg.type) {
@@ -105,6 +184,11 @@ function mainMaster() {
   });
 }
 
+/**
+ * Init worker with settings, including render and koa initializations.
+ *
+ * @param {Object} settings
+ */
 function initWorker(settings) {
   var root = globals.root = settings.root || '';
   var rooms = globals.rooms = settings.rooms || [];
@@ -125,12 +209,18 @@ function initWorker(settings) {
   app.use(route.get(url('/:room'), index));
 
   app.listen(port, function() {
-    log.info('server worker started on port %d', port);
+    log.info("server worker started on port %d", port);
   });
-  log.debug('server worker initialized');
+
+  log.debug("server worker initialized");
 }
 
-
+/**
+ * Connect work in worker.
+ *
+ * @param {Target} target
+ * @param {Object} settings
+ */
 function connectWorker(target, settings) {
   if (!('_maps' in globals)) {
     globals._maps = {};
@@ -140,19 +230,34 @@ function connectWorker(target, settings) {
     target: target,
     settings: settings,
   };
-  log.debug('server worker registered with %s', target.name);
+  log.debug("server worker registered with %s", target.name);
 }
 
 
+/**
+ * Alert work in worker.
+ *
+ * @param {String} name
+ * @param {Number} level
+ * @param {Array} lines
+ * @param {Number} stamp
+ */
 function alertWorker(name, level, lines, stamp) {
+  var interval,
+      rooms,
+      room,
+      list,
+      data,
+      i,
+
   if (!(name in globals._maps)) {
     return;
   }
 
-  var interval = globals._maps[name].target.interval;
-  var rooms = globals._maps[name].settings.rooms;
+  interval = globals._maps[name].target.interval;
+  rooms = globals._maps[name].settings.rooms;
 
-  var data = {
+  data = {
     name: name,
     count: lines.length,
     level: level,
@@ -162,9 +267,9 @@ function alertWorker(name, level, lines, stamp) {
   };
 
 
-  for (var i = 0; i < rooms.length; i++) {
-    var room = rooms[i];
-    var list = cache[room];
+  for (i = 0; i < rooms.length; i++) {
+    room = rooms[i];
+    list = cache[room];
 
     if (typeof list === 'undefined') {
       list = cache[room] = [];
@@ -177,11 +282,13 @@ function alertWorker(name, level, lines, stamp) {
     list.push(data);
   }
 
-  log.debug('server worker alert, name: %s, count: %d, level: %d, stamp: %d',
+  log.debug("server worker alert, name: %s, count: %d, level: %d, stamp: %d",
             data.name, data.count, data.level, data.stamp);
 }
 
-
+/**
+ * Dispatch works on different messages in master.
+ */
 function mainWorker() {
   process.on('message', function(msg){
     switch(msg.type) {
@@ -196,7 +303,6 @@ function mainWorker() {
 }
 
 (function() {
-  // init logger
   log.addRule({
     name: 'stderr',
     stream: process.stderr,
