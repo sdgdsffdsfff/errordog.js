@@ -248,7 +248,7 @@ function alertWorker(name, level, lines, stamp) {
       room,
       list,
       data,
-      i,
+      i;
 
   if (!(name in globals._maps)) {
     return;
