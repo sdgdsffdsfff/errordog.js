@@ -14,11 +14,17 @@
 
 const events   = require('events');
 const program  = require('commander');
-const logging  = require('logging');
+const logging  = require('logging.js');
 const Target   = require('./lib/target');
 const util     = require('./lib/util');
 const version  = require('./package').version;
 const log      = logging.get('errordog');
+
+// add rule `stder` to log
+log.addRule({
+  name: 'stderr',
+  stream: process.stderr
+});
 
 // may be harmful, see
 // http://stackoverflow.com/questions/9768444/possible-eventemitter-memory-leak-detected
@@ -53,7 +59,6 @@ events.EventEmitter.defaultMaxListeners = 100;
   // Configure logging
   //---------------------------------------------------------
   levelName = program.args[1] || 'INFO';
-  log.addRule({name: 'stderr', stream: process.stderr});
   log.getRule('stderr').level = logging[levelName.toUpperCase()];
 
   //---------------------------------------------------------
