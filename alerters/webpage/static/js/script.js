@@ -117,7 +117,8 @@
         return l.trim();
       }).join('\n'));
       child.find('.datetime').text(strftime(data.stamp));
-      child.find('.errors-count').text(data.count);
+      child.find('.message .name').text(data.name);
+      child.find('.message .errors-count').text(data.count);
 
       hljs.highlightBlock(child.find('pre code')[0]);
 
