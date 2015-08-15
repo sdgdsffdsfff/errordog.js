@@ -132,6 +132,10 @@
           window.scrollTo(0, document.body.scrollHeight);
         }
       }
+
+      if ($('.main').height() > 1300) {
+        $('.back-to-top-box').show();
+      }
     }
 
   }

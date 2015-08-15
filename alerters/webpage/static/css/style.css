@@ -89,7 +89,3 @@ table.items {
 .back-to-top-box {
   display: none;
 }
-
-@media screen and (min-height: 1000px) {
-  .back-to-top-box {display: block}
-}
