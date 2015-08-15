@@ -50,6 +50,15 @@
       }
     });
 
+    $('.back-to-top').click(function() {
+      if (fullscreenToggle) {
+        // main is scroll able in fullscreen mode
+        $('.main').scrollTop(0);
+      } else {
+        window.scrollTo(0, 0);
+      }
+    });
+
     //--------------------------------------------------
     // Pull data from server end
     //--------------------------------------------------

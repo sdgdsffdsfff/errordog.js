@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block mainTitle %}
-{{ room }}
+erordog - {{ room }}
 {% endblock %}
 
 {% block mainContent %}
@@ -58,7 +58,11 @@
      </tr>
    </tbody>
 </table>
-
+<div class="btn-group btn-group-justified back-to-top-box">
+  <a class="btn btn-default back-to-top" href="javascript:void(0)">
+   ↑ {{ lang("Back To Top", "回到顶部") }}
+  </a>
+</div>
 {% endblock %}
 
 {% block scriptsrc %}

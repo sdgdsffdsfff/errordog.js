@@ -30,7 +30,7 @@ html, body {
 }
 
 .wait-data {
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 .turn-on {
@@ -38,7 +38,7 @@ html, body {
 }
 
 table.items {
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 .items tr {
@@ -84,4 +84,12 @@ table.items {
     width: 100%;
     height: 100%;
     overflow-y: scroll;
+}
+
+.back-to-top-box {
+  display: none;
+}
+
+@media screen and (min-height: 1000px) {
+  .back-to-top-box {display: block}
 }
