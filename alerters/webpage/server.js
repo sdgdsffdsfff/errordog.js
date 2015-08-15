@@ -5,7 +5,9 @@
 
 'use strict';
 
+const clone     = require('clone');
 const cluster   = require('cluster');
+const extend    = require('extend');
 const koa       = require('koa');
 const mount     = require('koa-mount');
 const route     = require('koa-route');
@@ -38,6 +40,10 @@ function url(route, params) {
       list,
       item;
 
+  if (typeof params === 'undefined') {
+    params = {};
+  }
+
   s = path.join('/', globals.root, route);
 
   if (params) {
@@ -50,7 +56,7 @@ function url(route, params) {
     }
     s += '?' + pairs.join('&');
   }
-  return s;
+  return s.replace(/\?$/g, '');
 }
 
 
@@ -72,18 +78,20 @@ function render(tpl, ctx) {
  * @param {String} room
  */
 function *index(room) {
-  var data;
+  var params = {
+    lang: this.request.query.lang === 'zh' ? 'zh' : 'en'
+  };
 
-  if (typeof room !== 'string') {
-    // empty object
-    this.body = yield render('index.html');
-  } else {
-    data = {
-      room: room,
-      api: url('/_api/' + room)
-    };
-    this.body = yield render('room.html', data);
+  if (typeof room !== 'string' && !Object.keys(room).length
+      && globals.rooms.length) {
+    room = globals.rooms[0];
   }
+
+  this.body = yield render('index.html', {
+    room: room,
+    api: url('/_api/' + room),
+    params: params
+  });
 }
 
 /**
@@ -196,8 +204,10 @@ function initWorker(settings) {
   var cacheCount = globals.cacheCount = settings.cacheCount || 30;
   var port = globals.port = settings.port || 9527;
 
-  env.addGlobal('version', version);
   env.addGlobal('url', url);
+  env.addGlobal('clone', clone);
+  env.addGlobal('extend', extend);
+  env.addGlobal('version', version);
   env.addGlobal('rooms', rooms);
   env.addGlobal('interval', interval);
 
