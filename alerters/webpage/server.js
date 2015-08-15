@@ -82,8 +82,7 @@ function *index(room) {
     lang: this.request.query.lang === 'zh' ? 'zh' : 'en'
   };
 
-  if (typeof room !== 'string' && !Object.keys(room).length
-      && globals.rooms.length) {
+  if (typeof room !== 'string' && !Object.keys(room).length && globals.rooms.length) {
     room = globals.rooms[0];
   }
 
