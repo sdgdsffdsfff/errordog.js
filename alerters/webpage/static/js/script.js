@@ -62,7 +62,7 @@
     //--------------------------------------------------
     // Pull data from server end
     //--------------------------------------------------
-    var maxCount = 40,
+    var maxCount = 80,
         curCount = 0,
         placeholder = $('.items tr.placeholder'),
         updateAt = 0;

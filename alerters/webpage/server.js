@@ -21,7 +21,7 @@ const env       = new nunjucks.Environment(loader);
 const log       = logging.get('errordog.webpage.server');
 const cache     = {};   // {roomName: latestItems}
 const globals   = {};   // global vars
-const MAX_LINES = 60;
+const MAX_LINES = 80;
 
 // jshint -W040
 
