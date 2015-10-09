@@ -1,6 +1,6 @@
 {
     "name": "errordog",
-    "version": "0.6.2",
+    "version": "0.6.3",
     "repository": {
         "type": "git",
         "url": "git://github.com/eleme/errordog.js"
@@ -17,7 +17,7 @@
       "clone": "1.0.2",
       "commander": "2.8.1",
       "extend": "3.0.0",
-      "logging.js": ">=0.0.7",
+      "logging.js": "0.0.9",
       "koa": "~0.20",
       "koa-mount": "1.3.0",
       "koa-route": "2.4.1",
